@@ -35,8 +35,8 @@ int main(int argc, char *argv[])
 	wing.SSPNOP = 5.0;
 	wing.SSPNE = 8.0;
 	wing.SAVSI = 10;
-	wing.SAVSO = 15;
-	wing.CHSTAT = 0;
+	wing.SAVSO = 0.;
+	wing.CHSTAT = 1;
 	wing.TYPE = 2.0;
 
 	wingfoil.COUNT=20;

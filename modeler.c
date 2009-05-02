@@ -33,8 +33,8 @@ int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, struct SY
 		span[1]=wing->SSPN-wing->SSPNE;
 		span[2]=wing->SSPN;
 		offset_x[0]=synths->XW;
-		offset_x[1]=synths->XW;
-		offset_x[2]=synths->XW;
+		offset_x[1]=synths->XW+tan(wing->SAVSI * 0.017453293)*span[1];
+		offset_x[2]=synths->XW+tan(wing->SAVSI * 0.017453293)*span[2];
 		offset_z[0]=synths->ZW;
 		offset_z[1]=synths->ZW;
 		offset_z[2]=synths->ZW;
@@ -51,10 +51,11 @@ int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, struct SY
 		span[1]=wing->SSPN-wing->SSPNE;
 		span[2]=wing->SSPN-wing->SSPNOP;
 		span[3]=wing->SSPN;
-		offset_x[0]=synths->XW;
-		offset_x[1]=synths->XW+tan(wing->SAVSI * 0.017453293)*span[1];
-		offset_x[2]=synths->XW+tan(wing->SAVSI * 0.017453293)*span[2];
-		offset_x[3]=synths->XW+tan(wing->SAVSI * 0.017453293)*span[2] + tan(wing->SAVSO * 0.017453293)*wing->SSPNOP;
+		offset_x[0]=synths->XW+wing->CHSTAT*wing->CHRDR;
+		offset_x[1]=offset_x[0]+tan(wing->SAVSI * 0.017453293)*span[1];
+		offset_x[2]=offset_x[0]+tan(wing->SAVSI * 0.017453293)*span[2];
+		offset_x[3]=offset_x[0]+tan(wing->SAVSI * 0.017453293)*span[2] + tan(wing->SAVSO * 0.017453293)*wing->SSPNOP;
+// SSPNDD  * cos (dihedral) = SSPNOP ??
 		offset_z[0]=synths->ZW;
 		offset_z[1]=synths->ZW;
 		offset_z[2]=synths->ZW;
@@ -71,7 +72,7 @@ int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, struct SY
 		for (i=0;i<airfoil->COUNT;i++)
 		{
 			fprintf(ofp,"%f %f %f\n", 
-				offset_x[current_rib] + (airfoil->DATAX[i] * chord[current_rib]), 
+				offset_x[current_rib] + ((airfoil->DATAX[i] - wing->CHSTAT) * chord[current_rib]), 
 				offset_z[current_rib] + (airfoil->DATAY[i] * chord[current_rib]),
 				span[current_rib]);
 		}
@@ -90,7 +91,7 @@ int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, struct SY
 		for (i=0;i<airfoil->COUNT;i++)
 		{
 			fprintf(ofp,"%f %f %f\n", 
-				offset_x[current_rib] + (airfoil->DATAX[i] * chord[current_rib]), 
+				offset_x[current_rib] + ((airfoil->DATAX[i] - wing->CHSTAT) * chord[current_rib]), 
 				offset_z[current_rib] + (airfoil->DATAY[i] * chord[current_rib]), 
 				-span[current_rib]);
 		}
