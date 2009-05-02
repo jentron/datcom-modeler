@@ -29,10 +29,12 @@ int main(int argc, char *argv[])
 
 
 	wing.CHRDR = 2.0;
+	wing.CHRDBP = 1.5;
 	wing.CHRDTP = 0.8;
 	wing.SSPN = 10.0;
+	wing.SSPNOP = 5.0;
 	wing.SSPNE = 8.0;
-	wing.TYPE = 1.0;
+	wing.TYPE = 2.0;
 
 	wingfoil.COUNT=20;
 	wingfoil.DATAY=datay;
