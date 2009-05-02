@@ -78,11 +78,12 @@ struct TVTPAN{
 /* Airfoil */
 struct AIRFOIL{
 	int COUNT;    /* Number of entries */
-	double *DATA; /* data elements */
+	double *DATAX; /* data elements */
+	double *DATAY;
 };
 
 int InitAC(FILE *ofp, int kids);
-int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil);
+int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, struct SYNTHS *synths);
 
 #define MODELER_H
 #endif

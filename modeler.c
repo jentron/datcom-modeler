@@ -13,83 +13,78 @@ int InitAC(FILE *ofp, int kids)
 
 }
 
-int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil)
+int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, struct SYNTHS *synths)
 {
-	int i;
-	double chord,x,y;
+	int i, ribs, sections;
+	double chord;
 
-	fprintf(ofp,"OBJECT poly\nname \"Left Wing\"\ncrease 45.0\nnumvert %d\n", airfoil->COUNT * 3); // three or four based on type
-	x=0.0;
-	y=1.0/(double)(airfoil->COUNT/2.0);
+	switch (wing->TYPE)
+	{
+	case 1: /* Straight tapered planform */
+		ribs=3;
+		sections=2;
+		break;
+	case 2: /* Double delta planform (aspect ratio <= 3) */
+		ribs=4;
+		sections=3;
+		break;
+	case 3: /* Cranked planform (aspect ratio > 3) */
+		ribs=4;
+		sections=3;
+		break;
+	default:
+		fprintf(stderr,"Unkown TYPE %d in WGPLNF\n", wing->TYPE);
+		return(0);
+	}
+
+	fprintf(ofp,"OBJECT poly\nname \"Left Wing\"\ncrease 45.0\nnumvert %d\n", airfoil->COUNT * ribs); // three or four based on type
 	chord=wing->CHRDR;
 	for (i=0;i<airfoil->COUNT;i++)
 	{
-		fprintf(ofp,"%f %f %f\n", x * chord, airfoil->DATA[i] * chord, 0.0);
-		x += y;
-		if(x >= 1.0) y *= -1;
+		fprintf(ofp,"%f %f %f\n", airfoil->DATAX[i] * chord, airfoil->DATAY[i] * chord, 0.0);
 	}
 
-	x=0.0;
-	y*=-1;
 	chord=wing->CHRDTP+(wing->CHRDR-wing->CHRDTP)*(wing->SSPNE/wing->SSPN);
 	for (i=0;i<airfoil->COUNT;i++)
 	{
-		fprintf(ofp,"%f %f %f\n", x * chord, airfoil->DATA[i] * chord, (wing->SSPN-wing->SSPNE));
-		x += y;
-		if(x >= 1.0) y *= -1;
+		fprintf(ofp,"%f %f %f\n", airfoil->DATAX[i] * chord, airfoil->DATAY[i] * chord, (wing->SSPN - wing->SSPNE));
 	}
 
-	x=0.0;
-	y*=-1;
 	chord=wing->CHRDTP;
 	for (i=0;i<airfoil->COUNT;i++)
 	{
-		fprintf(ofp,"%f %f %f\n", x * chord, airfoil->DATA[i] * chord, (wing->SSPNE));
-		x += y;
-		if(x >= 1.0) y *= -1;
+		fprintf(ofp,"%f %f %f\n", airfoil->DATAX[i] * chord, airfoil->DATAY[i] * chord, (wing->SSPNE));
 	}
 
-	fprintf(ofp,"numsurf %d\n", airfoil->COUNT * 2 * 2); // will be 2 or 3 depending on type
+	fprintf(ofp,"numsurf %d\n", airfoil->COUNT * 2 * sections); // will be 2 or 3 depending on type
 	tubesurface(ofp, 0, airfoil->COUNT, airfoil->COUNT, 0x30, 1);
 	tubesurface(ofp, airfoil->COUNT, airfoil->COUNT*2, airfoil->COUNT, 0x30, 0);
 	fprintf(ofp,"kids 0\n");
 
-	fprintf(ofp,"OBJECT poly\nname \"Right Wing\"\ncrease 45.0\nnumvert %d\n", airfoil->COUNT * 3); // three or four based on type
-	x=0.0;
-	y=1.0/(double)(airfoil->COUNT/2.0);
+	fprintf(ofp,"OBJECT poly\nname \"Right Wing\"\ncrease 45.0\nnumvert %d\n", airfoil->COUNT * ribs); // three or four based on type
 	chord=wing->CHRDR;
 	for (i=0;i<airfoil->COUNT;i++)
 	{
-		fprintf(ofp,"%f %f %f\n", x * chord, airfoil->DATA[i] * chord, 0.0);
-		x += y;
-		if(x >= 1.0) y *= -1;
+		fprintf(ofp,"%f %f %f\n", airfoil->DATAX[i] * chord, airfoil->DATAY[i] * chord, 0.0);
 	}
 
-	x=0.0;
-	y*=-1;
 	chord=wing->CHRDTP+(wing->CHRDR-wing->CHRDTP)*(wing->SSPNE/wing->SSPN);
 	for (i=0;i<airfoil->COUNT;i++)
 	{
-		fprintf(ofp,"%f %f %f\n", x * chord, airfoil->DATA[i] * chord, -(wing->SSPN-wing->SSPNE));
-		x += y;
-		if(x >= 1.0) y *= -1;
+		fprintf(ofp,"%f %f %f\n", airfoil->DATAX[i] * chord, airfoil->DATAY[i] * chord, -(wing->SSPN - wing->SSPNE));
 	}
 
-	x=0.0;
-	y*=-1;
 	chord=wing->CHRDTP;
 	for (i=0;i<airfoil->COUNT;i++)
 	{
-		fprintf(ofp,"%f %f %f\n", x * chord, airfoil->DATA[i] * chord, -(wing->SSPNE));
-		x += y;
-		if(x >= 1.0) y *= -1;
+		fprintf(ofp,"%f %f %f\n", airfoil->DATAX[i] * chord, airfoil->DATAY[i] * chord, -(wing->SSPN));
 	}
 
-	fprintf(ofp,"numsurf %d\n", airfoil->COUNT * 2 * 2); // will be 2 or 3 depending on type
+	fprintf(ofp,"numsurf %d\n", airfoil->COUNT * 2 * sections); // will be 2 or 3 depending on type
 	tubesurface(ofp, airfoil->COUNT, 0, airfoil->COUNT, 0x30, 1);
 	tubesurface(ofp, airfoil->COUNT*2, airfoil->COUNT, airfoil->COUNT, 0x30, 0);
 	fprintf(ofp,"kids 0\n");
-
+	return(1);
 }
 
 
