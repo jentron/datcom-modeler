@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include "modeler.h"
 
+int tubesurface(FILE *ofp, int a, int b, int count, int type);
+
+
 int InitAC(FILE *ofp, int kids)
 {
 	fprintf(ofp,"AC3Db\n");
@@ -46,23 +49,15 @@ int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil)
 	}
 
 	fprintf(ofp,"numsurf %d\n", airfoil->COUNT * 2 * 2); // will be 2 or 3 depending on type
-	for(i=0;i<airfoil->COUNT;i++)
-	{
-		fprintf(ofp, "SURF 0x30\nmat 0\nrefs 3\n%d 0 0\n%d 0 0\n%d 0 0\n", i, i+airfoil->COUNT, (i+1)%airfoil->COUNT); 
-		fprintf(ofp, "SURF 0x30\nmat 0\nrefs 3\n%d 0 0\n%d 0 0\n%d 0 0\n", i+airfoil->COUNT, (i+1)%airfoil->COUNT+airfoil->COUNT, (i+1)%airfoil->COUNT); 
-	}
-	for(;i< 2*airfoil->COUNT;i++)
-	{
-		fprintf(ofp, "SURF 0x30\nmat 0\nrefs 3\n%d 0 0\n%d 0 0\n%d 0 0\n", i, i+airfoil->COUNT, (i+1)%airfoil->COUNT+airfoil->COUNT); 
-		fprintf(ofp, "SURF 0x30\nmat 0\nrefs 3\n%d 0 0\n%d 0 0\n%d 0 0\n", i+airfoil->COUNT, (i+1)%airfoil->COUNT+airfoil->COUNT*2, (i+1)%airfoil->COUNT+airfoil->COUNT); 
-	}
+	tubesurface(ofp, 0, airfoil->COUNT, airfoil->COUNT, 0x30);
+	tubesurface(ofp, airfoil->COUNT, airfoil->COUNT*2, airfoil->COUNT, 0x30);
 
 
         fprintf(ofp,"*** WriteWing Incomplete! ***\n");
 }
 
 
-int tubesurface(FILE ofp, int a, int b, int count, int type)
+int tubesurface(FILE *ofp, int a, int b, int count, int type)
 {
 	int i;
 	for(i=0;i<count;i++)
