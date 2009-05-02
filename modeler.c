@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <math.h>
+
 #include "modeler.h"
 
 int tubesurface(FILE *ofp, int a, int b, int count, int type, int color);
@@ -9,7 +11,7 @@ int InitAC(FILE *ofp, int kids)
 	fprintf(ofp,"AC3Db\n");
 	fprintf(ofp,"MATERIAL \"zinc chromate\" rgb 0.455 0.722 0.169  amb 0.455 0.722 0.169  emis 0 0 0  spec 0.227 0.161 0.161  shi 65  trans 0\n");
 	fprintf(ofp,"MATERIAL \"white\" rgb 1 1 1  amb 1 1 1  emis 0 0 0  spec 0 0 0  shi 10  trans 0 \n");
-	fprintf(ofp,"MATERIAL \"white\" rgb 1 1 1  amb 1 1 1  emis 0 0 0  spec 0 0 0  shi 10  trans 0 \n");
+	fprintf(ofp,"MATERIAL \"red\" rgb 1 0.5 0.5  amb 1 0.5 0.5  emis 0 0 0  spec 0 0 0  shi 10  trans 0 \n");
 	fprintf(ofp,"OBJECT world\nkids %d\n", kids);
 
 }
@@ -17,7 +19,7 @@ int InitAC(FILE *ofp, int kids)
 int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, struct SYNTHS *synths)
 {
 	int i, ribs, sections, current_rib, current_section;
-	double chord[4],span[4];
+	double chord[4],span[4], offset_x[4], offset_z[4];
 
 	switch (wing->TYPE)
 	{
@@ -30,6 +32,12 @@ int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, struct SY
 		span[0]=0;
 		span[1]=wing->SSPN-wing->SSPNE;
 		span[2]=wing->SSPN;
+		offset_x[0]=synths->XW;
+		offset_x[1]=synths->XW;
+		offset_x[2]=synths->XW;
+		offset_z[0]=synths->ZW;
+		offset_z[1]=synths->ZW;
+		offset_z[2]=synths->ZW;
 		break;
 	case 2: /* Double delta planform (aspect ratio <= 3) */
 	case 3: /* Cranked planform (aspect ratio > 3) */
@@ -43,6 +51,14 @@ int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, struct SY
 		span[1]=wing->SSPN-wing->SSPNE;
 		span[2]=wing->SSPN-wing->SSPNOP;
 		span[3]=wing->SSPN;
+		offset_x[0]=synths->XW;
+		offset_x[1]=synths->XW+tan(wing->SAVSI * 0.017453293)*span[1];
+		offset_x[2]=synths->XW+tan(wing->SAVSI * 0.017453293)*span[2];
+		offset_x[3]=synths->XW+tan(wing->SAVSI * 0.017453293)*span[2] + tan(wing->SAVSO * 0.017453293)*wing->SSPNOP;
+		offset_z[0]=synths->ZW;
+		offset_z[1]=synths->ZW;
+		offset_z[2]=synths->ZW;
+		offset_z[3]=synths->ZW;
 		break;
 	default:
 		fprintf(stderr,"Unkown TYPE %d in WGPLNF\n", wing->TYPE);
@@ -55,8 +71,8 @@ int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, struct SY
 		for (i=0;i<airfoil->COUNT;i++)
 		{
 			fprintf(ofp,"%f %f %f\n", 
-				synths->XW + (airfoil->DATAX[i] * chord[current_rib]), 
-				synths->ZW + (airfoil->DATAY[i] * chord[current_rib]),
+				offset_x[current_rib] + (airfoil->DATAX[i] * chord[current_rib]), 
+				offset_z[current_rib] + (airfoil->DATAY[i] * chord[current_rib]),
 				span[current_rib]);
 		}
 	}
@@ -74,8 +90,8 @@ int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, struct SY
 		for (i=0;i<airfoil->COUNT;i++)
 		{
 			fprintf(ofp,"%f %f %f\n", 
-				synths->XW + (airfoil->DATAX[i] * chord[current_rib]), 
-				synths->ZW + (airfoil->DATAY[i] * chord[current_rib]), 
+				offset_x[current_rib] + (airfoil->DATAX[i] * chord[current_rib]), 
+				offset_z[current_rib] + (airfoil->DATAY[i] * chord[current_rib]), 
 				-span[current_rib]);
 		}
 	}
