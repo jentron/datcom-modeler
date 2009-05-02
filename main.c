@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
 	wingfoil.DATA=data;
 
 
-	InitAC(stdout, 1);
+	InitAC(stdout, 2);
 	WriteWing(stdout, wing, &wingfoil);
 
 	if(wing) free(wing);
