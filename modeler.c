@@ -132,6 +132,75 @@ int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *nam
 	return(1);
 }
 
+int WriteFin(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *name, double X, double Z)
+{
+	int i, ribs, sections, current_rib, current_section;
+	double chord[4],span[4], offset_x[4], offset_z[4];
+
+	if(wing->SSPNOP > 0.0)
+	{
+		ribs=4;
+		sections=3;
+		chord[0]=wing->CHRDR;
+		chord[1]=wing->CHRDBP+(wing->CHRDR-wing->CHRDBP)*((wing->SSPNE-wing->SSPNOP)/(wing->SSPN-wing->SSPNOP));
+		chord[2]=wing->CHRDBP;
+		chord[3]=wing->CHRDTP;
+		span[0]=0;
+		span[1]=wing->SSPN-wing->SSPNE;
+		span[2]=wing->SSPN-wing->SSPNOP;
+		span[3]=wing->SSPN;
+		offset_x[0]=X+wing->CHSTAT*wing->CHRDR;
+		offset_x[1]=offset_x[0]+tan(wing->SAVSI * 0.017453293)*span[1];
+		offset_x[2]=offset_x[0]+tan(wing->SAVSI * 0.017453293)*span[2];
+		offset_x[3]=offset_x[0]+tan(wing->SAVSI * 0.017453293)*span[2] + tan(wing->SAVSO * 0.017453293)*wing->SSPNOP;
+// SSPNDD  * cos (dihedral) = SSPNOP ??
+		offset_z[0]=Z;
+		offset_z[1]=Z;
+		offset_z[2]=Z + tan(wing->DHDADI * 0.017453293) * (wing->SSPNE-wing->SSPNOP);
+		offset_z[3]=Z + tan(wing->DHDADI * 0.017453293) * (wing->SSPNE-wing->SSPNOP) 
+                              + tan(wing->DHDADO * 0.017453293) * (wing->SSPNOP) ;
+	} else {
+		ribs=3;
+		sections=2;
+		chord[0]=wing->CHRDR;
+		chord[1]=wing->CHRDTP+(wing->CHRDR-wing->CHRDTP)*(wing->SSPNE/wing->SSPN);
+		chord[2]=wing->CHRDTP;
+		span[0]=0;
+		span[1]=wing->SSPN-wing->SSPNE;
+		span[2]=wing->SSPN;
+		offset_x[0]=X;
+		offset_x[1]=X+tan(wing->SAVSI * 0.017453293)*span[1];
+		offset_x[2]=X+tan(wing->SAVSI * 0.017453293)*span[2];
+		offset_z[0]=Z;
+		offset_z[1]=Z;
+		offset_z[2]=Z + tan(wing->DHDADI * 0.017453293) * (wing->SSPNE);
+	}
+
+	fprintf(ofp,"OBJECT poly\nname \"Vertical %s\"\ncrease 45.0\nnumvert %d\n", name, airfoil->COUNT * ribs); // three or four based on type
+	for(current_rib=0;current_rib<ribs;current_rib++)
+	{
+		for (i=0;i<airfoil->COUNT;i++)
+		{
+			fprintf(ofp,"%f %f %f\n", 
+				offset_x[current_rib] + ((airfoil->DATAX[i] - wing->CHSTAT) * chord[current_rib]), 
+				span[current_rib],
+				offset_z[current_rib] + (airfoil->DATAY[i] * chord[current_rib]));
+		}
+	}
+
+	fprintf(ofp,"numsurf %d\n", airfoil->COUNT * 2 * sections + airfoil->COUNT - 2); 
+	for(current_section=0;current_section<sections;current_section++)
+	{
+		tubesurface(ofp, (current_section + 1) * airfoil->COUNT, (current_section) * airfoil->COUNT , airfoil->COUNT, 0x30, current_section);
+	}
+	skinsurface(ofp, (sections)*airfoil->COUNT, airfoil->COUNT-1, 0x30, sections-1, 0);
+
+	fprintf(ofp,"kids 0\n");
+
+	return(1);
+}
+
+
 
 int tubesurface(FILE *ofp, int a, int b, int count, int type, int color)
 {
