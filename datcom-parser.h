@@ -41,6 +41,9 @@ typedef struct AIRCRAFT {
   struct BODY    body;
   struct SYNTHS  synths;
   struct WGPLNF  wing;
+  struct WGPLNF  htail;
+  struct WGPLNF  vtail;
+  struct WGPLNF  vfin;
   DATCOM_AIRFOIL wingfoil;
   DATCOM_AIRFOIL htailfoil;
   DATCOM_AIRFOIL vtailfoil;

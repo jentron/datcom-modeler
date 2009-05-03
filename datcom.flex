@@ -36,11 +36,14 @@
     #define NL_SYNTHS  2
     #define NL_BODY    3
     #define NL_WGPLNF  4
-    #define NL_WGSCHR  5
-    #define NL_HTSCHR  6
-    #define NL_VTSCHR  7
-    #define NL_VFSCHR  8
-    #define NL_MAX     9 /* Keep this entry last! */
+    #define NL_HTPLNF  5
+    #define NL_VTPLNF  6
+    #define NL_VFPLNF  7
+    #define NL_WGSCHR  8
+    #define NL_HTSCHR  9
+    #define NL_VTSCHR  10
+    #define NL_VFSCHR  11
+    #define NL_MAX     12 /* Keep this entry last! */
 
     static int line_number;
 
@@ -56,6 +59,9 @@
                                        "$SYNTHS",
                                        "$BODY",
                                        "$WGPLNF",
+                                       "$HTPLNF",
+                                       "$VTPLNF",
+                                       "$VFPLNF",
                                        "$WGSCHR",
                                        "$HTSCHR",
                                        "$VTSCHR",
@@ -72,8 +78,8 @@
 
     static void SYNTHSReadVariable(char* var);
     static void BODYReadVariable(char* var);
-    static void WGPLNFReadVariable(char* var);
-    static void SCHRReadVariable(char* var, DATCOM_AIRFOIL *airfoil);
+    static void PLNFReadVariable(char* var, struct WGPLNF* surface);
+    static void SCHRReadVariable(char* var, DATCOM_AIRFOIL* airfoil);
 
     static void NACARead(char* str);
 %}
@@ -224,7 +230,9 @@ static void BeginNameList(char* name)
 {
     int i;
     if (current_namelist != NL_NONE) {
-        fputs("datcom-parser: Unterminated NAMELIST.", stderr);
+        fprintf(stderr,
+                "datcom-parser: Unterminated NAMELIST close to line %d\n",
+                line_number);
         exit(-1);
     }
     current_namelist = NL_UNKNOWN;
@@ -238,7 +246,9 @@ static void BeginNameList(char* name)
 static void EndNameList()
 {
     if (current_namelist == NL_NONE) {
-        fputs("datcom-parser: Unbegun NAMELIST terminated.", stderr);
+        fprintf(stderr,
+                "datcom-parser: Unbegun NAMELIST terminated close to line %d\n",
+                line_number);
         exit(-1);
     }
     current_namelist = NL_NONE;
@@ -248,7 +258,7 @@ static void ReadVariable(char* var)
 {
     switch (current_namelist) {
     case NL_NONE:
-        fputs("datcom-parser: Variable outside of NAMELIST.", stderr);
+        fputs("datcom-parser: Variable outside of NAMELIST", stderr);
         exit(-1);
         break;
     case NL_SYNTHS:
@@ -258,7 +268,16 @@ static void ReadVariable(char* var)
         BODYReadVariable(var);
         break;
     case NL_WGPLNF:
-        WGPLNFReadVariable(var);
+        PLNFReadVariable(var, &current_aircraft->wing);
+        break;
+    case NL_HTPLNF:
+        PLNFReadVariable(var, &current_aircraft->htail);
+        break;
+    case NL_VTPLNF:
+        PLNFReadVariable(var, &current_aircraft->vtail);
+        break;
+    case NL_VFPLNF:
+        PLNFReadVariable(var, &current_aircraft->vfin);
         break;
     case NL_WGSCHR:
         SCHRReadVariable(var, &current_aircraft->wingfoil);
@@ -325,8 +344,8 @@ static void SYNTHSReadVariable(char* var)
         next_int = &current_aircraft->synths.VERTUP;
     } else {
         fprintf(stderr,
-                "datcom-parser: Unknown variable %s in SYNTHS NAMELIST.\n",
-                var);
+                "datcom-parser: Unknown variable %s in SYNTHS NAMELIST close to line %d\n",
+                var, line_number);
     }
 }
 
@@ -375,47 +394,47 @@ static void BODYReadVariable(char* var)
         next_int = &current_aircraft->body.METHOD;
     } else {
         fprintf(stderr,
-                "datcom-parser: Unknown variable %s in BODY NAMELIST.\n",
-                var);
+                "datcom-parser: Unknown variable %s in BODY NAMELIST close to line %d\n",
+                var, line_number);
     }
 }
 
-static void WGPLNFReadVariable(char* var)
+static void PLNFReadVariable(char* var, struct WGPLNF* surface)
 {
     num_doubles = 1;
     if (strcmp(var, "CHRDR") == 0) {
-        next_double = &current_aircraft->wing.CHRDR;
+        next_double = &surface->CHRDR;
     } else if (strcmp(var, "CHRDBP") == 0) {
-        next_double = &current_aircraft->wing.CHRDBP;
+        next_double = &surface->CHRDBP;
     } else if (strcmp(var, "CHRDTP") == 0) {
-        next_double = &current_aircraft->wing.CHRDTP;
+        next_double = &surface->CHRDTP;
     } else if (strcmp(var, "SSPN") == 0) {
-        next_double = &current_aircraft->wing.SSPN;
+        next_double = &surface->SSPN;
     } else if (strcmp(var, "SSPNE") == 0) {
-        next_double = &current_aircraft->wing.SSPNE;
+        next_double = &surface->SSPNE;
     } else if (strcmp(var, "SSPNOP") == 0) {
-        next_double = &current_aircraft->wing.SSPNOP;
+        next_double = &surface->SSPNOP;
     } else if (strcmp(var, "SAVSI") == 0) {
-        next_double = &current_aircraft->wing.SAVSI;
+        next_double = &surface->SAVSI;
     } else if (strcmp(var, "SAVSO") == 0) {
-        next_double = &current_aircraft->wing.SAVSO;
+        next_double = &surface->SAVSO;
     } else if (strcmp(var, "CHSTAT") == 0) {
-        next_double = &current_aircraft->wing.CHSTAT;
+        next_double = &surface->CHSTAT;
     } else if (strcmp(var, "TWISTA") == 0) {
-        next_double = &current_aircraft->wing.TWISTA;
+        next_double = &surface->TWISTA;
     } else if (strcmp(var, "SSPNDD") == 0) {
-        next_double = &current_aircraft->wing.SSPNDD;
+        next_double = &surface->SSPNDD;
     } else if (strcmp(var, "DHDADI") == 0) {
-        next_double = &current_aircraft->wing.DHDADI;
+        next_double = &surface->DHDADI;
     } else if (strcmp(var, "DHDADO") == 0) {
-        next_double = &current_aircraft->wing.DHDADO;
+        next_double = &surface->DHDADO;
     } else if (strcmp(var, "TYPE") == 0) {
         num_doubles = 0;
-        next_int    = &current_aircraft->wing.TYPE;
+        next_int    = &surface->TYPE;
     } else {
         fprintf(stderr,
-                "datcom-parser: Unknown variable %s in PLNF NAMELIST.\n",
-                var);
+                "datcom-parser: Unknown variable %s in PLNF NAMELIST around line %d\n",
+                var, line_number);
     }
 }
 
@@ -439,8 +458,8 @@ static void SCHRReadVariable(char* var, DATCOM_AIRFOIL *airfoil)
         next_double = &airfoil->YLOWER[0];
     } else {
         fprintf(stderr,
-                "datcom-parser: Unknown variable %s in SCHR NAMELIST.\n",
-                var);
+                "datcom-parser: Unknown variable %s in SCHR NAMELIST close to line %d\n",
+                var, line_number);
     } 
 }
 
@@ -468,8 +487,8 @@ static void NACARead(char* str)
         strcpy(current_aircraft->vfinfoil.NACA_DESCR, str);
         break;
     default:
-        fprintf(stderr, "datcom-parser: Unknow surface in NACA airfoil %s\n",
-                str);
+        fprintf(stderr, "datcom-parser: Unknow surface in NACA airfoil %s close to line %d\n",
+                str, line_number);
         break;
     }
 }
