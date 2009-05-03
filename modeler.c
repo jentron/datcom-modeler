@@ -41,8 +41,9 @@ int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, struct SY
 // SSPNDD  * cos (dihedral) = SSPNOP ??
 		offset_z[0]=synths->ZW;
 		offset_z[1]=synths->ZW;
-		offset_z[2]=synths->ZW;
-		offset_z[3]=synths->ZW;
+		offset_z[2]=synths->ZW + tan(wing->DHDADI * 0.017453293) * (wing->SSPNE-wing->SSPNOP);
+		offset_z[3]=synths->ZW + tan(wing->DHDADI * 0.017453293) * (wing->SSPNE-wing->SSPNOP) 
+                                       + tan(wing->DHDADO * 0.017453293) * (wing->SSPNOP) ;
 	} else {
 		ribs=3;
 		sections=2;

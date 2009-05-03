@@ -1,6 +1,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "modeler.h"
 
@@ -26,8 +27,12 @@ int NacaFoil(char *name, struct AIRFOIL *foil)
 {
 	double m, p, t;
 	int i;
-
-	i = atoi(name);
+	if(strlen(name) == 4)
+	{
+		i = atoi(name);
+	} else {
+		i = 16;
+	}
 
 	m = i/1000;
 	i -= m*1000;
