@@ -44,9 +44,40 @@ int WriteBody(FILE *ofp, struct BODY *body, struct SYNTHS *synths)
 {
 	int i, j;
 	double theta=0, step=0.314159, ZR, ZC, YR;
+	int p,r,s,z, good;
+	p=r=s=z=good=0;
+/* first we look at the data structure too see what information we've been provided */
+	for(i=0; i < body->NX; i++)
+        {
+		p += body->P[i]; // P(erimiter) should always be positve!
+		r += body->R[i]; // R(adius) should always be positve!
+		s += body->S[i]; // S(urface area) should always be positve!
+		z += abs(body->ZU[i]) + abs(body->ZL[i]) ; // Upper and lower bounds can have sign
+	}
+/* Synthesize "R" if needed */
+  if(r) good=1;
+  else if (s)
+  {
+	for(i=0; i < body->NX; i++)
+	{
+		body->R[i] = sqrt(body->S[i]/3.14159);
+	}
+	good=1;
+  } else if (p) {
+	for(i=0; i < body->NX; i++)
+	{
+		body->R[i] = (body->P[i]/6.2831853);
+	}
+	good=1;
+  } else {
+	return 0; //not enough data to proceed
+  }
 
+
+/* then we might be able to make use of it */
         fprintf(ofp,"OBJECT poly\nname \"Body\"\ncrease 45.0\nnumvert %d\n", body->NX * 20); // 
- 
+   if( z )
+   {
 	for(i=0; i < body->NX; i++)
 	{
 		theta=0;
@@ -54,21 +85,35 @@ int WriteBody(FILE *ofp, struct BODY *body, struct SYNTHS *synths)
 		{
 			ZR = (body->ZU[i]-body->ZL[i])/2;
 			ZC = body->ZU[i]-ZR;
-			if(body->R[i]) YR=body->R[i];  // this does not exactly match what I think the documentation does
-			else if(body->S[i]) YR=sqrt(body->S[i]/3.14159);
-			else YR = ZR;
 			fprintf(ofp,"%f %f %f\n", body->X[i], 
 				cos(theta)*ZR + ZC,
-				sin(theta)*YR);
+				sin(theta)*body->R[i]);
 			theta+=step;
 		}
 	}
+  } else {
+	for(i=0; i < body->NX; i++)
+	{
+		theta=0;
+		for(j = 0; j < 20; j++)
+		{
+			fprintf(ofp,"%f %f %f\n", body->X[i], 
+				cos(theta)*body->R[i],
+				sin(theta)*body->R[i]);
+			theta+=step;
+		}
+	}
+
+  }
+
+
         fprintf(ofp,"numsurf %d\n", 40 * ( body->NX -1 ));
         for(i=0;i<body->NX - 1;i++)
         {
                 tubesurface(ofp, (i+1) * 20, (i) * 20 , 20, 0x30, 0);
         }
- }
+ 	return(1);
+}
 
 int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *name, double X, double Z)
 {
@@ -220,7 +265,7 @@ int WriteFin(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *name
 	{
 		tubesurface(ofp, (current_section + 1) * airfoil->COUNT, (current_section) * airfoil->COUNT , airfoil->COUNT, 0x30, current_section);
 	}
-	skinsurface(ofp, (sections)*airfoil->COUNT, airfoil->COUNT-1, 0x30, sections-1, 0);
+	skinsurface(ofp, (sections)*airfoil->COUNT, airfoil->COUNT-1, 0x30, sections-1, 1);
 
 	fprintf(ofp,"kids 0\n");
 
