@@ -99,7 +99,7 @@ EOL             "\n"|"\n\r"|"\r\n"
 NEOL            [^\n\r]
 DOUBLE          "-"?{DIGIT}*"."{DIGIT}*("E""-"?{DIGIT}+)?
 BOOL            \.TRUE\.|\.FALSE\.
-COMMAND         ^(DIM|PART|DERIV|DUMP|DAMP|SAVE|NEXT|CASEID|BUILD)
+COMMAND         ^(DIM|PART|DERIV|DUMP|DAMP|SAVE|NEXT|CASEID|BUILD|PLOT)
 NAMELIST        "$"{ID}
 VAR             {ID}({WS}*"=")
 ARRVAR          {ID}"(1)"{WS}*"="
