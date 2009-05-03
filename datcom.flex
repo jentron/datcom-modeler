@@ -83,7 +83,7 @@ COMMAND         ^(DIM|PART|DERIV|DUMP|DAMP|SAVE|NEXT|CASEID)
 NAMELIST        "$"{ID}
 VAR             {ID}({WS}*"=")
 ARRVAR          {ID}"(1)"{WS}*"="
-NACAAIRFOIL     "NACA"{WS}?{ALPHA}{WS}?{DIGIT}{WS}?{DIGIT}+
+NACAAIRFOIL     ^"NACA"({WS}|"-")?{ALPHA}({WS}|"-")?{DIGIT}({WS}|"-")?{DIGIT}+({WS}|"-")?{DIGIT}+?
 LINECOMMENT     ^"*"[^\n]*
 LENDCOMMENT     "!"[^\n]*
 EOL             "\n"
@@ -102,7 +102,7 @@ EOL             "\n"
     fprintf(stderr,"    BOOL: %s\n", yytext);
 }
 
-{NAMELIST} {
+<INITIAL>{NAMELIST} {
     fprintf(stderr,"NAMELIST: %s\n", yytext);
     BEGIN(namelist);
     BeginNameList(yytext);
@@ -162,7 +162,7 @@ EOL             "\n"
 }
 
 ","
-    /* Eat ',' and newline */
+    /* Eat ',' */
 
 {WS}+
     /* Eat up whitespace */
@@ -204,7 +204,7 @@ static void InitializeParser(AIRCRAFT* aircraft)
 
 static void Fail()
 {
-    fprintf(stderr, "Unrecognized character '%s' at line %d\n",
+    fprintf(stderr, "Error: Unrecognized character '%s' close to line %d\n",
             yytext, line_number);
     exit(-1);
 }
