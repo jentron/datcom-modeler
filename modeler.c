@@ -4,6 +4,7 @@
 #include "modeler.h"
 
 int tubesurface(FILE *ofp, int a, int b, int count, int type, int color);
+int skinsurface(FILE *ofp, int a, int count, int type, int color, int reverse);
 
 
 int InitAC(FILE *ofp, int kids)
@@ -78,11 +79,13 @@ int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, struct SY
 		}
 	}
 
-	fprintf(ofp,"numsurf %d\n", airfoil->COUNT * 2 * sections); // will be 2 or 3 depending on type
+	fprintf(ofp,"numsurf %d\n", airfoil->COUNT * 2 * sections + airfoil->COUNT - 2); 
 	for(current_section=0;current_section<sections;current_section++)
 	{
 		tubesurface(ofp, current_section * airfoil->COUNT, (current_section + 1) * airfoil->COUNT , airfoil->COUNT, 0x30, current_section);
 	}
+	skinsurface(ofp, (sections)*airfoil->COUNT, airfoil->COUNT-1, 0x30, sections-1, 0);
+
 	fprintf(ofp,"kids 0\n");
 
 	fprintf(ofp,"OBJECT poly\nname \"Right Wing\"\ncrease 45.0\nnumvert %d\n", airfoil->COUNT * ribs); // three or four based on type
@@ -98,11 +101,12 @@ int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, struct SY
 	}
 
 
-	fprintf(ofp,"numsurf %d\n", airfoil->COUNT * 2 * sections); // will be 2 or 3 depending on type
+	fprintf(ofp,"numsurf %d\n", airfoil->COUNT * 2 * sections + airfoil->COUNT - 2); 
 	for(current_section=0;current_section<sections;current_section++)
 	{
 		tubesurface(ofp, (current_section + 1) * airfoil->COUNT, (current_section ) * airfoil->COUNT , airfoil->COUNT, 0x30, current_section);
 	}
+	skinsurface(ofp, (sections)*airfoil->COUNT, airfoil->COUNT-1, 0x30, sections-1, 1);
 	fprintf(ofp,"kids 0\n");
 
 	return(1);
@@ -117,5 +121,22 @@ int tubesurface(FILE *ofp, int a, int b, int count, int type, int color)
 		fprintf(ofp, "SURF 0x%02x\nmat %d\nrefs 3\n%d 0 0\n%d 0 0\n%d 0 0\n", type, color, a+i, b+i, a+(i+1)%count); 
 		fprintf(ofp, "SURF 0x%02x\nmat %d\nrefs 3\n%d 0 0\n%d 0 0\n%d 0 0\n", type, color, b+i, b+(i+1)%count, a+(i+1)%count); 
 	}
+}
+
+int skinsurface(FILE *ofp, int a, int count, int type, int color, int reverse)
+{
+	int i;
+	if(reverse){
+		for(i=1;i<count;i++)
+		{
+			fprintf(ofp,"SURF 0x%02x\nmat %d\nrefs 3\n%d 0 0\n%d 0 0\n%d 0 0\n", type, color, a, a+i, a+i+1);
+		}
+	} else {
+		for(i=1;i<count;i++)
+		{
+			fprintf(ofp,"SURF 0x%02x\nmat %d\nrefs 3\n%d 0 0\n%d 0 0\n%d 0 0\n", type, color, a, a+i+1, a+i);
+		}
+	}
+
 }
 
