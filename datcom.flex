@@ -77,6 +77,8 @@ ALPHA           [a-zA-Z]
 ALPHANUM        [A-Za-z0-9]
 ID              {ALPHA}+
 WS              [ \t]
+EOL             "\n"|"\n\r"|"\r\n"
+NEOL            [^\n\r]
 DOUBLE          "-"?{DIGIT}*"."{DIGIT}*("E""-"?{DIGIT}+)?
 BOOL            \.TRUE\.|\.FALSE\.
 COMMAND         ^(DIM|PART|DERIV|DUMP|DAMP|SAVE|NEXT|CASEID)
@@ -84,9 +86,8 @@ NAMELIST        "$"{ID}
 VAR             {ID}({WS}*"=")
 ARRVAR          {ID}"(1)"{WS}*"="
 NACAAIRFOIL     ^"NACA"({WS}|"-")?{ALPHA}({WS}|"-")?{DIGIT}({WS}|"-")?{DIGIT}+({WS}|"-")?{DIGIT}+?
-LINECOMMENT     ^"*"[^\n]*
-LENDCOMMENT     "!"[^\n]*
-EOL             "\n"|"\n\r"|"\r\n"
+LINECOMMENT     ^"*"{NEOL}*
+LENDCOMMENT     "!"{NEOL}*
 
 /*******************************************************************************
  * Rules
@@ -108,7 +109,7 @@ EOL             "\n"|"\n\r"|"\r\n"
     BeginNameList(yytext);
 }
 
-<namelist>"$"\n {
+<namelist>"$" {
     fprintf(stderr,"END OF NAMELIST\n");
     BEGIN(INITIAL);
     EndNameList();
@@ -148,7 +149,7 @@ EOL             "\n"|"\n\r"|"\r\n"
     fprintf(stderr,"AIRFOIL: %s\n", yytext);
 }
 
-{COMMAND}[^\n]*
+{COMMAND}{NEOL}*
     /* Drop uninteresting commands */
 
 {LINECOMMENT}

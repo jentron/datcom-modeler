@@ -4,13 +4,11 @@
 
 #include "modeler.h"
 
-int NacaFoil(char *name, struct AIRFOIL *foil);
 void naca4digit(double m, double p, double t, struct AIRFOIL *airfoil);
+
+#ifdef STANDALONE
 int main(int argc, char *argv[])
 {
-//	double x[]={0.0,0.0125,0.025,0.05,0.075,0.1,0.125,0.15,0.175,0.2,0.225,0.25,0.3,0.35,0.4,0.5,0.6,0.7,0.8,1.0};
-//	double x[]={0.0,0.0125,0.05,0.1,0.15,0.2,0.3,0.5,0.7,1.0,1.0,0.7,0.5,0.3,0.2,0.15,0.1,0.05,0.125,0.0};
-//	double y[20];
 	struct AIRFOIL airfoil;
 	int i;
 
@@ -22,6 +20,7 @@ int main(int argc, char *argv[])
 		fprintf(stdout, "%0.4f\t%0.4f\n", airfoil.DATAX[i], airfoil.DATAY[i]);
 	}
 }
+#endif
 
 int NacaFoil(char *name, struct AIRFOIL *foil)
 {
@@ -39,7 +38,7 @@ int NacaFoil(char *name, struct AIRFOIL *foil)
 	p *= 0.1;
 
 	t = (double)i * 0.01;
-fprintf(stderr, "m=%0.2f, p=%0.2f, t=%0.2f\n", m, p, t);
+//fprintf(stderr, "m=%0.2f, p=%0.2f, t=%0.2f\n", m, p, t);
 	naca4digit(m, p, t, foil); 
 }
 
