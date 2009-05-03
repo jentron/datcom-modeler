@@ -76,6 +76,13 @@ struct TVTPAN{
 } ;
 
 /* Airfoil */
+/*************************
+ *
+ * This structure contains data
+ * calculated from the input NACA
+ * number or airfoil geometric data. 
+ *
+ *************************/
 struct AIRFOIL{
 	int COUNT;    /* Number of entries */
 	double *DATAX; /* data elements */
