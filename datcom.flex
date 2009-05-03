@@ -283,13 +283,13 @@ static void ReadVariable(char* var)
         SCHRReadVariable(var, &current_aircraft->wingfoil);
         break;
     case NL_HTSCHR:
-        SCHRReadVariable(var, &current_aircraft->wingfoil);
+        SCHRReadVariable(var, &current_aircraft->htailfoil);
         break;
     case NL_VTSCHR:
-        SCHRReadVariable(var, &current_aircraft->wingfoil);
+        SCHRReadVariable(var, &current_aircraft->vtailfoil);
         break;
     case NL_VFSCHR:
-        SCHRReadVariable(var, &current_aircraft->wingfoil);
+        SCHRReadVariable(var, &current_aircraft->vfinfoil);
         break;
     default:
         break;
@@ -450,7 +450,7 @@ static void SCHRReadVariable(char* var, DATCOM_AIRFOIL *airfoil)
         next_double = &airfoil->XCORD[0];
     } else if (strcmp(var, "YUPPER") == 0) {
         num_doubles = airfoil->NPTS;
-        airfoil->YLOWER = calloc(num_doubles, sizeof(double));
+        airfoil->YUPPER = calloc(num_doubles, sizeof(double));
         next_double = &airfoil->YUPPER[0];
     } else if (strcmp(var, "YLOWER") == 0) {
         num_doubles = airfoil->NPTS;

@@ -17,9 +17,9 @@ int main(int argc, char *argv[])
     if (argc > 1) {
       ReadDatcom(argv[1], &ac);
       PrintAC(&ac);
-	if (ac.wingfoil.NPTS) 
+	if (ac.wingfoil.NPTS && ac.wingfoil.YUPPER && ac.wingfoil.YLOWER) 
 		DatcomFoil(&ac.wingfoil, &wingfoil);
-	if(ac.wingfoil.NACA_DESCR)
+	else if(ac.wingfoil.NACA_DESCR)
 	      NacaFoil(ac.wingfoil.NACA_DESCR, &wingfoil);
 	else
 	      NacaFoil("NACA-W-4-2414", &wingfoil);

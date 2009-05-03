@@ -18,13 +18,21 @@ int InitAC(FILE *ofp, int kids)
 }
 int WriteBody(FILE *ofp, struct BODY *body, struct SYNTHS *synths)
 {
-	int i;
+	int i, j;
+	double theta=0, step=0.314159;
 
         fprintf(ofp,"OBJECT poly\nname \"Body\"\ncrease 45.0\nnumvert %d\n", body->NX * 20); // 
  
 	for(i=0; i < body->NX; i++)
 	{
-		
+		theta=0;
+		for(j = 0; j < 20; j++)
+		{
+			fprintf(ofp,"%f %f %f\n", body->X[i], 
+				cos(theta)*body->R[i],
+				sin(theta)*body->R[i]);
+			theta+=step;
+		}
 	}
 	
 }

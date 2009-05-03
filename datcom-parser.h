@@ -1,6 +1,6 @@
 /*
  *=============================================================================
- *  flex based scanner for DATCOM input cards.
+ *  flex based parser for DATCOM input cards.
  *
  *  Copyright (C) 2009  Anders Gidenstam
  *  anders(at)gidenstam.org
