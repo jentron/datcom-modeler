@@ -8,7 +8,7 @@ modeler.o: modeler.h modeler.c
 	$(CC) $(CFLAGS) modeler.c -c -o $@ 
 
 naca: naca.c
-	$(CC) naca.c -o $@
+	$(CC) naca.c -o $@ -lm
   
 datcom-parser.o: datcom-parser.h modeler.h datcom-parser.c
 	$(CC) $(CFLAGS) datcom-parser.c -c -o $@ 

@@ -2,9 +2,8 @@
  *=============================================================================
  *  flex based scanner for DATCOM input cards.
  *
- *  Copyright (C) 2009  Anders Gidenstam
- *  anders(at)gidenstam.org
- *  http://www.gidenstam.org
+ *  Copyright (C) 2009  Anders Gidenstam (anders(at)gidenstam.org)
+ *  Copyright (C) 2009  Ron Jensen
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -57,71 +56,102 @@
     static void BeginNameList(char* name);
     static void EndNameList();
     static void ReadVariable(char* var);
-    static void ReadDouble(char* str);
+    static void ReadNumber(char* str); /* Reads a double or an int */ 
 
     static void SYNTHSReadVariable(char* var);
+    static void BODYReadVariable(char* var);
     static void WGPLNFReadVariable(char* var);
 %}
 
 /* This tells flex to read only one input file */
 %option noyywrap
 
-DIGIT    [0-9]
-ALPHA    [a-zA-Z]
-ALPHANUM [A-Za-z0-9]
-ID       {ALPHA}+
-WS       [ \t\n]
-DOUBLE   "-"?{DIGIT}*"."{DIGIT}+("E""-"?{DIGIT}+)?
-BOOL     \.TRUE\.|\.FALSE\.
-COMMAND  ^(DIM|PART|DERIV|DUMP|DAMP|SAVE|NEXT|CASEID)
-NAMELIST "$"{ID}
-ARRVAR   {ID}"(1)"{WS}*"="
-VAR      {ID}{WS}*"="
-AIRFOIL  "NACA"{WS}?{ALPHA}{WS}?{DIGIT}{WS}?{DIGIT}+
+/* Parser conditions/"states" */
+%s namelist
 
-/* Rules */
+DIGIT           [0-9]
+ALPHA           [a-zA-Z]
+ALPHANUM        [A-Za-z0-9]
+ID              {ALPHA}+
+WS              [ \t\n]
+DOUBLE          "-"?{DIGIT}*"."{DIGIT}*("E""-"?{DIGIT}+)?
+BOOL            \.TRUE\.|\.FALSE\.
+COMMAND         ^(DIM|PART|DERIV|DUMP|DAMP|SAVE|NEXT|CASEID)
+NAMELIST        "$"{ID}
+VAR             {ID}({WS}*"=")
+ARRVAR          {ID}"(1)"{WS}*"="
+NACAAIRFOIL     "NACA"{WS}?{ALPHA}{WS}?{DIGIT}{WS}?{DIGIT}+
+LINECOMMENT     ^"*"[^\n]*
+LENDCOMMENT     "!"[^\n]*
+
+/*******************************************************************************
+ * Rules
+ */
 %%
 
-{DOUBLE} {
+<namelist>{DOUBLE} {
     fprintf(stderr,"    DOUBLE: %g\n", atof(yytext));
-    ReadDouble(yytext);
+    ReadNumber(yytext);
 }
 
-{BOOL} {
+<namelist>{BOOL} {
     fprintf(stderr,"    BOOL: %s\n", yytext);
 }
 
 {NAMELIST} {
     fprintf(stderr,"NAMELIST: %s\n", yytext);
+    BEGIN(namelist);
     BeginNameList(yytext);
 }
 
-"$"\n {
+<namelist>"$"\n {
     fprintf(stderr,"END OF NAMELIST\n");
+    BEGIN(INITIAL);
     EndNameList();
 }
 
-{ARRVAR} {
+<namelist>{ARRVAR} {
+    char* e;
+    /* Strip trailing garbage. I hope this is safe.. */
+    e = strchr(yytext, '(');
+    if (e != NULL) {
+        *e = '\0';
+    }
     fprintf(stderr,"  ARRAYVARIABLE: %s\n", yytext);
-}
 
-{VAR} {
-    fprintf(stderr,"  VARIABLE: %s\n", yytext);
     ReadVariable(yytext);
 }
 
-{AIRFOIL} {
+<namelist>{VAR} {
+    char* s;
+    char* e;
+
+    /* Strip trailing garbage. I hope this is safe.. */
+    s = strchr(yytext, ' ');
+    e = strchr(yytext, '=');
+    e = (e != NULL) ? e : s;
+    s = (s != NULL) ? s : e;
+    e = (e < s) ? e : s;
+    if (e != NULL) {
+        *e = '\0';
+    }
+    fprintf(stderr,"  VARIABLE: %s\n", yytext);
+
+    ReadVariable(yytext);
+}
+
+{NACAAIRFOIL} {
     fprintf(stderr,"AIRFOIL: %s\n", yytext);
 }
 
 {COMMAND}[^\n]*
     /* Drop uninteresting commands */
 
-^"*"[^\n]*
-    /* Drop comments */
+{LINECOMMENT}
+    /* Drop comment lines */
 
-"!"[^\n]*
-    /* Apparently "!" marks an inline comment? */
+{LENDCOMMENT}
+    /* Drop comment lines */
 
 [,\n]
     /* Eat ',' and newline */
@@ -130,10 +160,14 @@ AIRFOIL  "NACA"{WS}?{ALPHA}{WS}?{DIGIT}{WS}?{DIGIT}+
     /* Eat up whitespace */
 
 . {
-    fprintf(stderr, "Unrecognized character: %s\n", yytext );
+    fprintf(stderr, "Unrecognized character: %s\n", yytext);
+    exit(-1);
 }
 
 %%
+/*******************************************************************************
+ * Verbatim code section
+ */
 
 /* Main entry point. */
 void ReadDatcom(char* filename, AIRCRAFT* aircraft)
@@ -152,13 +186,18 @@ static void InitializeParser(AIRCRAFT* aircraft)
     next_double      = NULL;
     num_doubles      = 0;
     next_int         = NULL;
+
+    bzero(&current_aircraft->body, sizeof(struct BODY));
+    bzero(&current_aircraft->synths, sizeof(struct SYNTHS));
+    bzero(&current_aircraft->wing, sizeof(struct WGPLNF));
+    bzero(&current_aircraft->wingfoil, sizeof(struct AIRFOIL));
 }
 
 static void BeginNameList(char* name)
 {
     int i;
     if (current_namelist != NL_NONE) {
-        fputs("datcom-parser: Unterminated NAMELIST.",stderr);
+        fputs("datcom-parser: Unterminated NAMELIST.", stderr);
         exit(-1);
     }
     current_namelist = NL_UNKNOWN;
@@ -172,7 +211,7 @@ static void BeginNameList(char* name)
 static void EndNameList()
 {
     if (current_namelist == NL_NONE) {
-        fputs("datcom-parser: Unbegun NAMELIST terminated.",stderr);
+        fputs("datcom-parser: Unbegun NAMELIST terminated.", stderr);
         exit(-1);
     }
     current_namelist = NL_NONE;
@@ -182,11 +221,14 @@ static void ReadVariable(char* var)
 {
     switch (current_namelist) {
     case NL_NONE:
-        fputs("datcom-parser: Variable outside of NAMELIST.",stderr);
+        fputs("datcom-parser: Variable outside of NAMELIST.", stderr);
         exit(-1);
         break;
     case NL_SYNTHS:
         SYNTHSReadVariable(var);
+        break;
+    case NL_BODY:
+        BODYReadVariable(var);
         break;
     case NL_WGPLNF:
         WGPLNFReadVariable(var);
@@ -196,11 +238,11 @@ static void ReadVariable(char* var)
     }
 }
 
-static void ReadDouble(char* str)
+static void ReadNumber(char* str)
 {
     if (num_doubles-- && next_double != NULL) {
         *next_double = atof(yytext); /* Add error detection here! */
-        next_double  = NULL;
+        next_double = (num_doubles > 0) ? next_double + 1 : NULL;
     } else if (next_int) {
         *next_int = (int)atof(yytext); /* Add error detection here! */
         next_int = NULL;
@@ -211,35 +253,35 @@ static void SYNTHSReadVariable(char* var)
 {
     /*printf("SYNTHS: %s\n", var);*/
     num_doubles = 1;
-    if (strncmp(var, "XCG", 3) == 0) {
+    if (strcmp(var, "XCG") == 0) {
         next_double = &current_aircraft->synths.XCG;
-    } else if (strncmp(var, "ZCG=", 4) == 0) {
+    } else if (strcmp(var, "ZCG") == 0) {
         next_double = &current_aircraft->synths.ZCG;
-    } else if (strncmp(var, "XW=", 3) == 0) {
+    } else if (strcmp(var, "XW") == 0) {
         next_double = &current_aircraft->synths.XW;
-    } else if (strncmp(var, "ZW=", 3) == 0) {
+    } else if (strcmp(var, "ZW") == 0) {
         next_double = &current_aircraft->synths.ZW;
-    } else if (strncmp(var, "ALIW=", 5) == 0) {
+    } else if (strcmp(var, "ALIW") == 0) {
         next_double = &current_aircraft->synths.ALIW;
-    } else if (strncmp(var, "XH=", 3) == 0) {
+    } else if (strcmp(var, "XH") == 0) {
         next_double = &current_aircraft->synths.XH;
-    } else if (strncmp(var, "ZH=", 3) == 0) {
+    } else if (strcmp(var, "ZH") == 0) {
         next_double = &current_aircraft->synths.ZH;
-    } else if (strncmp(var, "ALIH=", 5) == 0) {
+    } else if (strcmp(var, "ALIH") == 0) {
         next_double = &current_aircraft->synths.ALIH;
-    } else if (strncmp(var, "XV=", 3) == 0) {
+    } else if (strcmp(var, "XV") == 0) {
         next_double = &current_aircraft->synths.XV;
-    } else if (strncmp(var, "ZV=", 3) == 0) {
+    } else if (strcmp(var, "ZV") == 0) {
         next_double = &current_aircraft->synths.ZV;
-    } else if (strncmp(var, "XVF=", 4) == 0) {
+    } else if (strcmp(var, "XVF") == 0) {
         next_double = &current_aircraft->synths.XVF;
-    } else if (strncmp(var, "ZVF=", 4) == 0) {
+    } else if (strcmp(var, "ZVF") == 0) {
         next_double = &current_aircraft->synths.ZVF;
-    } else if (strncmp(var, "SCALE=", 6) == 0) {
+    } else if (strcmp(var, "SCALE") == 0) {
         next_double = &current_aircraft->synths.SCALE;
-    } else if (strncmp(var, "HINAX=", 6) == 0) {
+    } else if (strcmp(var, "HINAX") == 0) {
         next_double = &current_aircraft->synths.HINAX;
-    } else if (strncmp(var, "VERTUP=", 7) == 0) {
+    } else if (strcmp(var, "VERTUP") == 0) {
         num_doubles = 0;
         next_int = &current_aircraft->synths.VERTUP;
     } else {
@@ -249,36 +291,86 @@ static void SYNTHSReadVariable(char* var)
     }
 }
 
+static void BODYReadVariable(char* var)
+{
+    if (strcmp(var, "NX") == 0) {
+        next_int = &current_aircraft->body.NX;
+    } else if (strcmp(var, "X") == 0) {
+        num_doubles = current_aircraft->body.NX;
+        next_double = &current_aircraft->body.X[0];
+    } else if (strcmp(var, "S") == 0) {
+        num_doubles = current_aircraft->body.NX;
+        next_double = &current_aircraft->body.S[0];
+    } else if (strcmp(var, "P") == 0) {
+        num_doubles = current_aircraft->body.NX;
+        next_double = &current_aircraft->body.P[0];
+    } else if (strcmp(var, "R") == 0) {
+        num_doubles = current_aircraft->body.NX;
+        next_double = &current_aircraft->body.R[0];
+    } else if (strcmp(var, "ZU") == 0) {
+        num_doubles = current_aircraft->body.NX;
+        next_double = &current_aircraft->body.ZU[0];
+    } else if (strcmp(var, "ZL") == 0) {
+        num_doubles = current_aircraft->body.NX;
+        next_double = &current_aircraft->body.ZL[0];
+    } else if (strcmp(var, "BNOSE") == 0) {
+        num_doubles = 1;
+        next_double = &current_aircraft->body.BNOSE;
+    } else if (strcmp(var, "BTAIL") == 0) {
+        num_doubles = 1;
+        next_double = &current_aircraft->body.BTAIL;
+    } else if (strcmp(var, "BLN") == 0) {
+        num_doubles = 1;
+        next_double = &current_aircraft->body.BLN;
+    } else if (strcmp(var, "BLA") == 0) {
+        num_doubles = 1;
+        next_double = &current_aircraft->body.BLA;
+    } else if (strcmp(var, "DS") == 0) {
+        num_doubles = 1;
+        next_double = &current_aircraft->body.DS;
+    } else if (strcmp(var, "ITYPE") == 0) {
+        num_doubles = 0;
+        next_int = &current_aircraft->body.ITYPE;
+    } else if (strcmp(var, "METHOD") == 0) {
+        num_doubles = 0;
+        next_int = &current_aircraft->body.METHOD;
+    } else {
+        fprintf(stderr,
+                "datcom-parser: Unknown variable %s in BODY NAMELIST.\n",
+                var);
+    }
+}
+
 static void WGPLNFReadVariable(char* var)
 {
     num_doubles = 1;
-    if (strncmp(var, "CHRDR=", 6) == 0) {
+    if (strcmp(var, "CHRDR") == 0) {
         next_double = &current_aircraft->wing.CHRDR;
-    } else if (strncmp(var, "CHRDBP=", 7) == 0) {
+    } else if (strcmp(var, "CHRDBP") == 0) {
         next_double = &current_aircraft->wing.CHRDBP;
-    } else if (strncmp(var, "CHRDTP=", 7) == 0) {
+    } else if (strcmp(var, "CHRDTP") == 0) {
         next_double = &current_aircraft->wing.CHRDTP;
-    } else if (strncmp(var, "SSPN=", 5) == 0) {
+    } else if (strcmp(var, "SSPN") == 0) {
         next_double = &current_aircraft->wing.SSPN;
-    } else if (strncmp(var, "SSPNE=", 6) == 0) {
+    } else if (strcmp(var, "SSPNE") == 0) {
         next_double = &current_aircraft->wing.SSPNE;
-    } else if (strncmp(var, "SSPNOP=", 7) == 0) {
+    } else if (strcmp(var, "SSPNOP") == 0) {
         next_double = &current_aircraft->wing.SSPNOP;
-    } else if (strncmp(var, "SAVSI=", 6) == 0) {
+    } else if (strcmp(var, "SAVSI") == 0) {
         next_double = &current_aircraft->wing.SAVSI;
-    } else if (strncmp(var, "SAVSO=", 6) == 0) {
+    } else if (strcmp(var, "SAVSO") == 0) {
         next_double = &current_aircraft->wing.SAVSO;
-    } else if (strncmp(var, "CHSTAT=", 7) == 0) {
+    } else if (strcmp(var, "CHSTAT") == 0) {
         next_double = &current_aircraft->wing.CHSTAT;
-    } else if (strncmp(var, "TWISTA=", 7) == 0) {
+    } else if (strcmp(var, "TWISTA") == 0) {
         next_double = &current_aircraft->wing.TWISTA;
-    } else if (strncmp(var, "SSPNDD=", 7) == 0) {
+    } else if (strcmp(var, "SSPNDD") == 0) {
         next_double = &current_aircraft->wing.SSPNDD;
-    } else if (strncmp(var, "DHDADI=", 7) == 0) {
+    } else if (strcmp(var, "DHDADI") == 0) {
         next_double = &current_aircraft->wing.DHDADI;
-    } else if (strncmp(var, "DHDADO=", 7) == 0) {
+    } else if (strcmp(var, "DHDADO") == 0) {
         next_double = &current_aircraft->wing.DHDADO;
-    } else if (strncmp(var, "TYPE=", 5) == 0) {
+    } else if (strcmp(var, "TYPE") == 0) {
         num_doubles = 0;
         next_int    = &current_aircraft->wing.TYPE;
     } else {
@@ -287,15 +379,3 @@ static void WGPLNFReadVariable(char* var)
                 var);
     }
 }
-
-/* Test main */
-/*
-int main(int argc, char** argv) {
-    ++argv, --argc;
-    if ( argc > 0 )
-        yyin = fopen( argv[0], "r" );
-    else
-        yyin = stdin;
-
-    yylex();
-}*/

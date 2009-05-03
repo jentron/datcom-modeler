@@ -21,7 +21,33 @@ struct SYNTHS {
 
 /* Body Geometric Data */
 struct BODY {
-  char pad[4];
+  int    NX;      /* Number of longitudinal body stations at which data is specified, max of 20 */
+  double X[20];   /* Array(20) Longitudinal distance measured from arbitray location */
+  double S[20];   /* Array(20) Cross sectional area at station. See note above. */
+  double P[20];   /* Array(20) Periphery at station Xi. See note above. */
+  double R[20];   /* Array(20) Planform half width at station Xi. See note above. */
+  double ZU[20];  /* Array(20) Z-coordinate at upper body surface at station Xi 
+                   *           (positive when above centerline)
+                   *           [Only required for subsonic asymmetric bodies] */
+  double ZL[20];  /* Array(20) Z-coordinate at lower body surface at station Xi
+                   *           (negative when below centerline)
+                   *           [Only required for subsonic asymmetric bodies] */
+  double BNOSE;   /* Nosecone type  1.0 = conical (rounded), 2.0 = ogive (sharp point)
+                   *           [Not required in subsonic speed regime] */
+  double BTAIL;   /* Tailcone type  1.0 = conical, 2.0 = ogive, omit for lbt = 0
+                   *           [Not required in subsonic speed regime] */
+  double BLN;     /* Length of body nose
+                   *           Not required in subsonic speed regime */
+  double BLA;     /* Length of cylindrical afterbody segment, =0.0 for nose alone
+                   *           or nose-tail configuration
+                   *           Not required in subsonic speed regime */
+  double DS;      /* Nose bluntness diameter, zero for sharp nosebodies
+                   *           [Hypersonic speed regime only] */
+  int ITYPE;      /* 1.0 = straight wing, no area rule
+                   * 2.0 = swept wing, no area rule (default)
+                   * 3.0 = swept wing, area rule */
+  int METHOD;     /* 1.0 = Use existing methods (default)
+                   * 2.0 = Use Jorgensen method */
 } ;
 
 /* Wing Planform Variables */
