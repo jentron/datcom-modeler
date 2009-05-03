@@ -15,7 +15,7 @@ struct SYNTHS {
          XVF, ZVF,
          SCALE,
          HINAX;
-  char   VERTUP;
+  int    VERTUP;
 /*  char[4] pad; */
 } ;
 

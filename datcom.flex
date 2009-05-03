@@ -213,32 +213,35 @@ static void SYNTHSReadVariable(char* var)
     num_doubles = 1;
     if (strncmp(var, "XCG", 3) == 0) {
         next_double = &current_aircraft->synths.XCG;
-    } else if (strncmp(var, "ZCG", 3) == 0) {
+    } else if (strncmp(var, "ZCG=", 4) == 0) {
         next_double = &current_aircraft->synths.ZCG;
-    } else if (strncmp(var, "XW", 2) == 0) {
+    } else if (strncmp(var, "XW=", 3) == 0) {
         next_double = &current_aircraft->synths.XW;
-    } else if (strncmp(var, "ZW", 2) == 0) {
+    } else if (strncmp(var, "ZW=", 3) == 0) {
         next_double = &current_aircraft->synths.ZW;
-    } else if (strncmp(var, "ALIW", 4) == 0) {
+    } else if (strncmp(var, "ALIW=", 5) == 0) {
         next_double = &current_aircraft->synths.ALIW;
-    } else if (strncmp(var, "XH", 2) == 0) {
+    } else if (strncmp(var, "XH=", 3) == 0) {
         next_double = &current_aircraft->synths.XH;
-    } else if (strncmp(var, "ZH", 2) == 0) {
+    } else if (strncmp(var, "ZH=", 3) == 0) {
         next_double = &current_aircraft->synths.ZH;
-    } else if (strncmp(var, "ALIH", 4) == 0) {
+    } else if (strncmp(var, "ALIH=", 5) == 0) {
         next_double = &current_aircraft->synths.ALIH;
-    } else if (strncmp(var, "XV", 2) == 0) {
+    } else if (strncmp(var, "XV=", 3) == 0) {
         next_double = &current_aircraft->synths.XV;
-    } else if (strncmp(var, "ZV", 2) == 0) {
+    } else if (strncmp(var, "ZV=", 3) == 0) {
         next_double = &current_aircraft->synths.ZV;
-    } else if (strncmp(var, "XVF", 3) == 0) {
+    } else if (strncmp(var, "XVF=", 4) == 0) {
         next_double = &current_aircraft->synths.XVF;
-    } else if (strncmp(var, "ZVF", 3) == 0) {
+    } else if (strncmp(var, "ZVF=", 4) == 0) {
         next_double = &current_aircraft->synths.ZVF;
-    } else if (strncmp(var, "SCALE", 5) == 0) {
+    } else if (strncmp(var, "SCALE=", 6) == 0) {
         next_double = &current_aircraft->synths.SCALE;
-    } else if (strncmp(var, "HINAX", 5) == 0) {
+    } else if (strncmp(var, "HINAX=", 6) == 0) {
         next_double = &current_aircraft->synths.HINAX;
+    } else if (strncmp(var, "VERTUP=", 7) == 0) {
+        num_doubles = 0;
+        next_int = &current_aircraft->synths.VERTUP;
     } else {
         fprintf(stderr,
                 "datcom-parser: Unknown variable %s in SYNTHS NAMELIST.\n",
@@ -249,33 +252,33 @@ static void SYNTHSReadVariable(char* var)
 static void WGPLNFReadVariable(char* var)
 {
     num_doubles = 1;
-    if (strncmp(var, "CHRDR", 5) == 0) {
+    if (strncmp(var, "CHRDR=", 6) == 0) {
         next_double = &current_aircraft->wing.CHRDR;
-    } else if (strncmp(var, "CHRDBP", 6) == 0) {
+    } else if (strncmp(var, "CHRDBP=", 7) == 0) {
         next_double = &current_aircraft->wing.CHRDBP;
-    } else if (strncmp(var, "CHRDTP", 6) == 0) {
+    } else if (strncmp(var, "CHRDTP=", 7) == 0) {
         next_double = &current_aircraft->wing.CHRDTP;
-    } else if (strncmp(var, "SSPN", 4) == 0) {
+    } else if (strncmp(var, "SSPN=", 5) == 0) {
         next_double = &current_aircraft->wing.SSPN;
-    } else if (strncmp(var, "SSPNE", 5) == 0) {
+    } else if (strncmp(var, "SSPNE=", 6) == 0) {
         next_double = &current_aircraft->wing.SSPNE;
-    } else if (strncmp(var, "SSPNOP", 6) == 0) {
+    } else if (strncmp(var, "SSPNOP=", 7) == 0) {
         next_double = &current_aircraft->wing.SSPNOP;
-    } else if (strncmp(var, "SAVSI", 5) == 0) {
+    } else if (strncmp(var, "SAVSI=", 6) == 0) {
         next_double = &current_aircraft->wing.SAVSI;
-    } else if (strncmp(var, "SAVSO", 5) == 0) {
+    } else if (strncmp(var, "SAVSO=", 6) == 0) {
         next_double = &current_aircraft->wing.SAVSO;
-    } else if (strncmp(var, "CHSTAT", 6) == 0) {
+    } else if (strncmp(var, "CHSTAT=", 7) == 0) {
         next_double = &current_aircraft->wing.CHSTAT;
-    } else if (strncmp(var, "TWISTA", 6) == 0) {
+    } else if (strncmp(var, "TWISTA=", 7) == 0) {
         next_double = &current_aircraft->wing.TWISTA;
-    } else if (strncmp(var, "SSPNDD", 6) == 0) {
+    } else if (strncmp(var, "SSPNDD=", 7) == 0) {
         next_double = &current_aircraft->wing.SSPNDD;
-    } else if (strncmp(var, "DHDADI", 6) == 0) {
+    } else if (strncmp(var, "DHDADI=", 7) == 0) {
         next_double = &current_aircraft->wing.DHDADI;
-    } else if (strncmp(var, "DHDADO", 6) == 0) {
+    } else if (strncmp(var, "DHDADO=", 7) == 0) {
         next_double = &current_aircraft->wing.DHDADO;
-    } else if (strncmp(var, "TYPE", 4) == 0) {
+    } else if (strncmp(var, "TYPE=", 5) == 0) {
         num_doubles = 0;
         next_int    = &current_aircraft->wing.TYPE;
     } else {

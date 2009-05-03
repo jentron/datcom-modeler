@@ -2,6 +2,11 @@
 #include <stdlib.h>
 #include "datcom-parser.h"
 
+void PrintAC(struct AIRCRAFT *ac)
+{
+	return;
+}
+
 int main(int argc, char *argv[])
 {
     AIRCRAFT ac;
@@ -47,7 +52,7 @@ int main(int argc, char *argv[])
   
     if (argc > 1) {
       ReadDatcom(argv[1], &ac);
-    
+      PrintAC(&ac);    
       InitAC(stdout, 2);
       WriteWing(stdout, &ac.wing, &wingfoil, &ac.synths);
     }
