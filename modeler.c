@@ -183,8 +183,8 @@ int WriteFin(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *name
 		{
 			fprintf(ofp,"%f %f %f\n", 
 				offset_x[current_rib] + ((airfoil->DATAX[i] - wing->CHSTAT) * chord[current_rib]), 
-				span[current_rib],
-				offset_z[current_rib] + (airfoil->DATAY[i] * chord[current_rib]));
+				offset_z[current_rib] + span[current_rib],
+				(airfoil->DATAY[i] * chord[current_rib]));
 		}
 	}
 
