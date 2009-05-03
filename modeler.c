@@ -22,26 +22,8 @@ int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, struct SY
 	int i, ribs, sections, current_rib, current_section;
 	double chord[4],span[4], offset_x[4], offset_z[4];
 
-	switch (wing->TYPE)
+	if(wing->SSPNOP > 0.0)
 	{
-	case 1: /* Straight tapered planform */
-		ribs=3;
-		sections=2;
-		chord[0]=wing->CHRDR;
-		chord[1]=wing->CHRDTP+(wing->CHRDR-wing->CHRDTP)*(wing->SSPNE/wing->SSPN);
-		chord[2]=wing->CHRDTP;
-		span[0]=0;
-		span[1]=wing->SSPN-wing->SSPNE;
-		span[2]=wing->SSPN;
-		offset_x[0]=synths->XW;
-		offset_x[1]=synths->XW+tan(wing->SAVSI * 0.017453293)*span[1];
-		offset_x[2]=synths->XW+tan(wing->SAVSI * 0.017453293)*span[2];
-		offset_z[0]=synths->ZW;
-		offset_z[1]=synths->ZW;
-		offset_z[2]=synths->ZW;
-		break;
-	case 2: /* Double delta planform (aspect ratio <= 3) */
-	case 3: /* Cranked planform (aspect ratio > 3) */
 		ribs=4;
 		sections=3;
 		chord[0]=wing->CHRDR;
@@ -61,10 +43,21 @@ int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, struct SY
 		offset_z[1]=synths->ZW;
 		offset_z[2]=synths->ZW;
 		offset_z[3]=synths->ZW;
-		break;
-	default:
-		fprintf(stderr,"Unkown TYPE %d in WGPLNF\n", wing->TYPE);
-		return(0);
+	} else {
+		ribs=3;
+		sections=2;
+		chord[0]=wing->CHRDR;
+		chord[1]=wing->CHRDTP+(wing->CHRDR-wing->CHRDTP)*(wing->SSPNE/wing->SSPN);
+		chord[2]=wing->CHRDTP;
+		span[0]=0;
+		span[1]=wing->SSPN-wing->SSPNE;
+		span[2]=wing->SSPN;
+		offset_x[0]=synths->XW;
+		offset_x[1]=synths->XW+tan(wing->SAVSI * 0.017453293)*span[1];
+		offset_x[2]=synths->XW+tan(wing->SAVSI * 0.017453293)*span[2];
+		offset_z[0]=synths->ZW;
+		offset_z[1]=synths->ZW;
+		offset_z[2]=synths->ZW;
 	}
 
 	fprintf(ofp,"OBJECT poly\nname \"Left Wing\"\ncrease 45.0\nnumvert %d\n", airfoil->COUNT * ribs); // three or four based on type

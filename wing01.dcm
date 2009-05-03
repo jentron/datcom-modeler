@@ -1,0 +1,12 @@
+ $WGPLNF CHRDR=1.583,   CHRDTP=1.583,
+         SSPN=4.451,  SSPNE=4.434,
+         SAVSI=0.0,
+         CHSTAT=0.0, TWISTA=-3.0,
+         DHDADI=0.0,
+         TYPE=1.0$
+ $SYNTHS XCG=0.68, ZCG=0.16, 
+         XW=-0.76,  ZW=-0.075,  ALIW=0.0,
+         XH=3.256,  ZH=0.60,    ALIH=-2.0, 
+         XV=3.73,  ZV=0.618,
+         XVF=3.73, ZVF=0.618,
+         SCALE=1.0, VERTUP=.TRUE.$

@@ -1,0 +1,9 @@
+* B-737.dcm
+ $SYNTHS XW=28.3,ZW=-1.4,ALIW=1.0,XCG=41.3,ZCG=0.0,                                                                                  
+    XH=76.6,ZH=6.2,                                                                                  
+    XV=71.1,ZV=7.6,                                                                                  
+    XVF=66.2,ZVF=13.1,                                                                                  
+    VERTUP=.TRUE.$
+ $WGPLNF CHRDR=23.8,CHRDTP=4.8,CHRDBP=12.4,
+    SSPN=46.9,SSPNOP=31.1,SSPNE=40.0,CHSTAT=.25,TWISTA=0.0,TYPE=1.0,
+    SAVSI=29.0,SAVSO=26.0,DHDADI=0.0,DHDADO=4.0$
