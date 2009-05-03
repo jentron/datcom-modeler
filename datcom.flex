@@ -99,7 +99,7 @@ EOL             "\n"|"\n\r"|"\r\n"
 NEOL            [^\n\r]
 DOUBLE          "-"?{DIGIT}*"."{DIGIT}*("E""-"?{DIGIT}+)?
 BOOL            \.TRUE\.|\.FALSE\.
-COMMAND         ^(DIM|PART|DERIV|DUMP|DAMP|SAVE|NEXT|CASEID|BUILD|PLOT)
+COMMAND         ^(DIM|PART|DERIV|DUMP|DAMP|SAVE|NEXT|CASEID|BUILD|PLOT|TRIM)
 NAMELIST        "$"{ID}
 VAR             {ID}({WS}*"=")
 ARRVAR          {ID}"(1)"{WS}*"="
@@ -113,22 +113,22 @@ LENDCOMMENT     "!"{NEOL}*
 %%
 
 <namelist>{DOUBLE} {
-    fprintf(stderr,"    DOUBLE: %g\n", atof(yytext));
+    //fprintf(stderr,"    DOUBLE: %g\n", atof(yytext));
     ReadNumber(yytext);
 }
 
 <namelist>{BOOL} {
-    fprintf(stderr,"    BOOL: %s\n", yytext);
+    //fprintf(stderr,"    BOOL: %s\n", yytext);
 }
 
 <INITIAL>{NAMELIST} {
-    fprintf(stderr,"NAMELIST: %s\n", yytext);
+    //fprintf(stderr,"NAMELIST: %s\n", yytext);
     BEGIN(namelist);
     BeginNameList(yytext);
 }
 
 <namelist>"$" {
-    fprintf(stderr,"END OF NAMELIST\n");
+    //fprintf(stderr,"END OF NAMELIST\n");
     BEGIN(INITIAL);
     EndNameList();
 }
@@ -140,7 +140,7 @@ LENDCOMMENT     "!"{NEOL}*
     if (e != NULL) {
         *e = '\0';
     }
-    fprintf(stderr,"  ARRAYVARIABLE: %s\n", yytext);
+    //fprintf(stderr,"  ARRAYVARIABLE: %s\n", yytext);
 
     ReadVariable(yytext);
 }
@@ -158,13 +158,13 @@ LENDCOMMENT     "!"{NEOL}*
     if (e != NULL) {
         *e = '\0';
     }
-    fprintf(stderr,"  VARIABLE: %s\n", yytext);
+    //fprintf(stderr,"  VARIABLE: %s\n", yytext);
 
     ReadVariable(yytext);
 }
 
 {NACAAIRFOIL} {
-    fprintf(stderr,"AIRFOIL: %s\n", yytext);
+    //fprintf(stderr,"AIRFOIL: %s\n", yytext);
     NACARead(yytext);
 }
 

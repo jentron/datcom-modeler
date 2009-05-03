@@ -19,7 +19,7 @@ int InitAC(FILE *ofp, int kids)
 int WriteBody(FILE *ofp, struct BODY *body, struct SYNTHS *synths)
 {
 	int i, j;
-	double theta=0, step=0.314159, ZR, ZC;
+	double theta=0, step=0.314159, ZR, ZC, YR;
 
         fprintf(ofp,"OBJECT poly\nname \"Body\"\ncrease 45.0\nnumvert %d\n", body->NX * 20); // 
  
@@ -29,10 +29,13 @@ int WriteBody(FILE *ofp, struct BODY *body, struct SYNTHS *synths)
 		for(j = 0; j < 20; j++)
 		{
 			ZR = (body->ZU[i]-body->ZL[i])/2;
-			ZC = body->ZU[i]-ZR; 
+			ZC = body->ZU[i]-ZR;
+			if(body->R[i]) YR=body->R[i];  // this does not exactly match what I think the documentation does
+			else if(body->S[i]) YR=sqrt(body->S[i]/3.14159);
+			else YR = ZR;
 			fprintf(ofp,"%f %f %f\n", body->X[i], 
 				cos(theta)*ZR + ZC,
-				sin(theta)*body->R[i]);
+				sin(theta)*YR);
 			theta+=step;
 		}
 	}
