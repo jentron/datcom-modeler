@@ -86,7 +86,7 @@ ARRVAR          {ID}"(1)"{WS}*"="
 NACAAIRFOIL     ^"NACA"({WS}|"-")?{ALPHA}({WS}|"-")?{DIGIT}({WS}|"-")?{DIGIT}+({WS}|"-")?{DIGIT}+?
 LINECOMMENT     ^"*"[^\n]*
 LENDCOMMENT     "!"[^\n]*
-EOL             "\n"
+EOL             "\n"|"\n\r"|"\r\n"
 
 /*******************************************************************************
  * Rules
