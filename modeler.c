@@ -16,6 +16,18 @@ int InitAC(FILE *ofp, int kids)
 	fprintf(ofp,"OBJECT world\nkids %d\n", kids);
 
 }
+int WriteBody(FILE *ofp, struct BODY *body, struct SYNTHS *synths)
+{
+	int i;
+
+        fprintf(ofp,"OBJECT poly\nname \"Body\"\ncrease 45.0\nnumvert %d\n", body->NX * 20); // 
+ 
+	for(i=0; i < body->NX; i++)
+	{
+		
+	}
+	
+}
 
 int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, struct SYNTHS *synths)
 {

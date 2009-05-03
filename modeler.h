@@ -114,12 +114,6 @@ struct AIRFOIL{
 	double *DATAX; /* data elements */
 	double *DATAY;
 };
-/* Funtions in modeler.c */
-int InitAC(FILE *ofp, int kids);
-int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, struct SYNTHS *synths);
-
-/* Functions in naca.c */
-int NacaFoil(char *name, struct AIRFOIL *foil);
 
 #define MODELER_H
 #endif

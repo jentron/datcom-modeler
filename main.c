@@ -16,7 +16,9 @@ int main(int argc, char *argv[])
  
     if (argc > 1) {
       ReadDatcom(argv[1], &ac);
-      PrintAC(&ac);    
+      PrintAC(&ac);
+	if (ac.wingfoil.NPTS) 
+		DatcomFoil(&ac.wingfoil, &wingfoil);
 	if(ac.wingfoil.NACA_DESCR)
 	      NacaFoil(ac.wingfoil.NACA_DESCR, &wingfoil);
 	else

@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "modeler.h"
+#include "modeler_proto.h"
 
 void naca4digit(double m, double p, double t, struct AIRFOIL *airfoil);
 
@@ -121,7 +122,4 @@ Yl = yc - yt * cos(theta);
 	}
 
 }
-
-
-
 

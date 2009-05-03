@@ -51,5 +51,6 @@ typedef struct AIRCRAFT {
 } AIRCRAFT;
 
 void ReadDatcom(char* filename, AIRCRAFT* aircraft); 
+int DatcomFoil(DATCOM_AIRFOIL *dfoil, struct AIRFOIL *foil);
 
 #endif
