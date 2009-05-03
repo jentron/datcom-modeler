@@ -58,7 +58,7 @@ int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, struct SY
 		offset_x[2]=synths->XW+tan(wing->SAVSI * 0.017453293)*span[2];
 		offset_z[0]=synths->ZW;
 		offset_z[1]=synths->ZW;
-		offset_z[2]=synths->ZW;
+		offset_z[2]=synths->ZW + tan(wing->DHDADI * 0.017453293) * (wing->SSPNE);
 	}
 
 	fprintf(ofp,"OBJECT poly\nname \"Left Wing\"\ncrease 45.0\nnumvert %d\n", airfoil->COUNT * ribs); // three or four based on type
