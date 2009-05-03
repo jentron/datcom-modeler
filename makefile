@@ -1,7 +1,7 @@
 CFLAGS = -g
 OBJECTS = modeler.o datcom-parser.o
 
-datcom-modeler: main.c modeler.h $(OBJECTS)
+datcom-modeler: main.c $(OBJECTS)
 	$(CC) $(CFLAGS) main.c $(OBJECTS) -o $@ -lm
 
 modeler.o: modeler.h modeler.c
