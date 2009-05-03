@@ -26,13 +26,41 @@ int main(int argc, char *argv[])
 int NacaFoil(char *name, struct AIRFOIL *foil)
 {
 	double m, p, t;
-	int i;
-	if(strlen(name) == 4)
+	int i=16;
+	char *foo;
+	if(strncmp("NACA", name, 4) )
 	{
-		i = atoi(name);
-	} else {
-		i = 16;
+		return(0); //not a naca description
 	}
+	switch (name[7])
+	{
+	 case '1':
+fprintf(stderr,"%s CASE 1\n", name);
+	 break;
+
+	 case '4':
+		foo = &name[9];
+		i = atoi(foo);
+fprintf(stderr,"%s CASE 4: %d\n", name, i);
+	 break;
+
+	 case '5':
+fprintf(stderr,"%s CASE 5\n", name);
+	 break;
+
+	 case '6':
+fprintf(stderr,"%s CASE 6\n", name);
+	 break;
+
+	 case 'S':
+fprintf(stderr,"%s CASE S\n", name);
+	 break;
+
+	 default:
+fprintf(stderr,"%s Unknown airfoil\n", name);
+	}
+
+
 
 	m = i/1000;
 	i -= m*1000;
@@ -43,7 +71,7 @@ int NacaFoil(char *name, struct AIRFOIL *foil)
 	p *= 0.1;
 
 	t = (double)i * 0.01;
-//fprintf(stderr, "m=%0.2f, p=%0.2f, t=%0.2f\n", m, p, t);
+
 	naca4digit(m, p, t, foil); 
 }
 
