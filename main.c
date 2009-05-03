@@ -24,8 +24,9 @@ int main(int argc, char *argv[])
 	else
 	      NacaFoil("NACA-W-4-2414", &wingfoil);
 
-      InitAC(stdout, 2);
+      InitAC(stdout, 3);
       WriteWing(stdout, &ac.wing, &wingfoil, &ac.synths);
+      WriteBody(stdout, &ac.body, &ac.synths);
     }
     return(0);
 }

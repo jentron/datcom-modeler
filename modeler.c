@@ -34,8 +34,12 @@ int WriteBody(FILE *ofp, struct BODY *body, struct SYNTHS *synths)
 			theta+=step;
 		}
 	}
-	
-}
+        fprintf(ofp,"numsurf %d\n", 40 * ( body->NX -1 ));
+        for(i=0;i<body->NX;i++)
+        {
+                tubesurface(ofp, (i+1) * 20, (i) * 20 , 20, 0x30, 0);
+        }
+ }
 
 int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, struct SYNTHS *synths)
 {
