@@ -27,11 +27,24 @@
 
 #include "modeler.h"
 
+typedef struct DATCOM_AIRFOIL {
+  int     TYPEIN;
+  int     DWASH;
+  int     NPTS;
+  double* XCORD;
+  double* YUPPER;
+  double* YLOWER;
+  char*   NACA_DESCR;
+} DATCOM_AIRFOIL;
+
 typedef struct AIRCRAFT {
-    struct BODY body;
-    struct SYNTHS synths;
-    struct WGPLNF wing;
-    struct AIRFOIL wingfoil;
+  struct BODY    body;
+  struct SYNTHS  synths;
+  struct WGPLNF  wing;
+  DATCOM_AIRFOIL wingfoil;
+  DATCOM_AIRFOIL htailfoil;
+  DATCOM_AIRFOIL vtailfoil;
+  DATCOM_AIRFOIL vfinfoil;
 } AIRCRAFT;
 
 void ReadDatcom(char* filename, AIRCRAFT* aircraft); 

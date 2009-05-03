@@ -27,7 +27,7 @@
     #include <math.h>
     #include "datcom-parser.h"
 
-    /* Internal global variables. Hard to avoid with flex. */
+    /* Internal global variables. */
     static AIRCRAFT* current_aircraft;
 
     static int current_namelist;
@@ -36,6 +36,11 @@
     #define NL_SYNTHS  2
     #define NL_BODY    3
     #define NL_WGPLNF  4
+    #define NL_WGSCHR  5
+    #define NL_HTSCHR  6
+    #define NL_VTSCHR  7
+    #define NL_VFSCHR  8
+    #define NL_MAX     9 /* Keep this entry last! */
 
     static int line_number;
 
@@ -50,7 +55,11 @@
                                        "",
                                        "$SYNTHS",
                                        "$BODY",
-                                       "$WGPLNF"
+                                       "$WGPLNF",
+                                       "$WGSCHR",
+                                       "$HTSCHR",
+                                       "$VTSCHR",
+                                       "$VFSCHR",
                                    };
 
     /* Internal functions. */
@@ -64,6 +73,9 @@
     static void SYNTHSReadVariable(char* var);
     static void BODYReadVariable(char* var);
     static void WGPLNFReadVariable(char* var);
+    static void SCHRReadVariable(char* var, DATCOM_AIRFOIL *airfoil);
+
+    static void NACARead(char* str);
 %}
 
 /* This tells flex to read only one input file */
@@ -85,7 +97,7 @@ COMMAND         ^(DIM|PART|DERIV|DUMP|DAMP|SAVE|NEXT|CASEID)
 NAMELIST        "$"{ID}
 VAR             {ID}({WS}*"=")
 ARRVAR          {ID}"(1)"{WS}*"="
-NACAAIRFOIL     ^"NACA"({WS}|"-")?{ALPHA}({WS}|"-")?{DIGIT}({WS}|"-")?{DIGIT}+({WS}|"-")?{DIGIT}+?
+NACAAIRFOIL     ^"NACA"({WS}|"-"){NEOL}*{LENDCOMMENT}?
 LINECOMMENT     ^"*"{NEOL}*
 LENDCOMMENT     "!"{NEOL}*
 
@@ -147,6 +159,7 @@ LENDCOMMENT     "!"{NEOL}*
 
 {NACAAIRFOIL} {
     fprintf(stderr,"AIRFOIL: %s\n", yytext);
+    NACARead(yytext);
 }
 
 {COMMAND}{NEOL}*
@@ -197,10 +210,7 @@ static void InitializeParser(AIRCRAFT* aircraft)
     num_doubles      = 0;
     next_int         = NULL;
 
-    bzero(&current_aircraft->body, sizeof(struct BODY));
-    bzero(&current_aircraft->synths, sizeof(struct SYNTHS));
-    bzero(&current_aircraft->wing, sizeof(struct WGPLNF));
-    bzero(&current_aircraft->wingfoil, sizeof(struct AIRFOIL));
+    bzero(current_aircraft, sizeof(AIRCRAFT));
 }
 
 static void Fail()
@@ -218,7 +228,7 @@ static void BeginNameList(char* name)
         exit(-1);
     }
     current_namelist = NL_UNKNOWN;
-    for (i = 0; i <= NL_WGPLNF; i++) {
+    for (i = 0; i < NL_MAX; i++) {
         if (strcmp(name, NL_NAME[i]) == 0) {
             current_namelist = i;
         }
@@ -249,6 +259,18 @@ static void ReadVariable(char* var)
         break;
     case NL_WGPLNF:
         WGPLNFReadVariable(var);
+        break;
+    case NL_WGSCHR:
+        SCHRReadVariable(var, &current_aircraft->wingfoil);
+        break;
+    case NL_HTSCHR:
+        SCHRReadVariable(var, &current_aircraft->wingfoil);
+        break;
+    case NL_VTSCHR:
+        SCHRReadVariable(var, &current_aircraft->wingfoil);
+        break;
+    case NL_VFSCHR:
+        SCHRReadVariable(var, &current_aircraft->wingfoil);
         break;
     default:
         break;
@@ -394,5 +416,60 @@ static void WGPLNFReadVariable(char* var)
         fprintf(stderr,
                 "datcom-parser: Unknown variable %s in PLNF NAMELIST.\n",
                 var);
+    }
+}
+
+static void SCHRReadVariable(char* var, DATCOM_AIRFOIL *airfoil)
+{
+    if (strcmp(var, "TYPEIN") == 0) {
+        next_int = &airfoil->TYPEIN;
+    } else if (strcmp(var, "NPTS") == 0) {
+        next_int = &airfoil->NPTS;
+    } else if (strcmp(var, "XCORD") == 0) {
+        num_doubles = airfoil->NPTS;
+        airfoil->XCORD = calloc(num_doubles, sizeof(double));
+        next_double = &airfoil->XCORD[0];
+    } else if (strcmp(var, "YUPPER") == 0) {
+        num_doubles = airfoil->NPTS;
+        airfoil->YLOWER = calloc(num_doubles, sizeof(double));
+        next_double = &airfoil->YUPPER[0];
+    } else if (strcmp(var, "YLOWER") == 0) {
+        num_doubles = airfoil->NPTS;
+        airfoil->YLOWER = calloc(num_doubles, sizeof(double));
+        next_double = &airfoil->YLOWER[0];
+    } else {
+        fprintf(stderr,
+                "datcom-parser: Unknown variable %s in SCHR NAMELIST.\n",
+                var);
+    } 
+}
+
+static void NACARead(char* str)
+{
+    switch (str[5]) {
+    case 'W':
+        current_aircraft->wingfoil.NACA_DESCR =
+            (char *)malloc(strlen(str) + 1);
+        strcpy(current_aircraft->wingfoil.NACA_DESCR, str);
+        break;
+    case 'H':
+        current_aircraft->htailfoil.NACA_DESCR =
+            (char *)malloc(strlen(str) + 1);
+        strcpy(current_aircraft->htailfoil.NACA_DESCR, str);
+        break;
+    case 'V':
+        current_aircraft->vtailfoil.NACA_DESCR =
+            (char *)malloc(strlen(str) + 1);
+        strcpy(current_aircraft->vtailfoil.NACA_DESCR, str);
+        break;
+    case 'F':
+        current_aircraft->vfinfoil.NACA_DESCR =
+            (char *)malloc(strlen(str) + 1);
+        strcpy(current_aircraft->vfinfoil.NACA_DESCR, str);
+        break;
+    default:
+        fprintf(stderr, "datcom-parser: Unknow surface in NACA airfoil %s\n",
+                str);
+        break;
     }
 }
