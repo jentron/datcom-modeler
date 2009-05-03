@@ -1,6 +1,6 @@
 /*
  *=============================================================================
- *  flex based scanner for DATCOM input cards.
+ *  flex based parser for DATCOM input cards.
  *
  *  Copyright (C) 2009  Anders Gidenstam (anders(at)gidenstam.org)
  *  Copyright (C) 2009  Ron Jensen
@@ -37,6 +37,8 @@
     #define NL_BODY    3
     #define NL_WGPLNF  4
 
+    static int line_number;
+
     /* For variables and array variables. */
     static double* next_double;
     static int     num_doubles;
@@ -53,6 +55,7 @@
 
     /* Internal functions. */
     static void InitializeParser(AIRCRAFT* aircraft);
+    static void Fail();
     static void BeginNameList(char* name);
     static void EndNameList();
     static void ReadVariable(char* var);
@@ -73,7 +76,7 @@ DIGIT           [0-9]
 ALPHA           [a-zA-Z]
 ALPHANUM        [A-Za-z0-9]
 ID              {ALPHA}+
-WS              [ \t\n]
+WS              [ \t]
 DOUBLE          "-"?{DIGIT}*"."{DIGIT}*("E""-"?{DIGIT}+)?
 BOOL            \.TRUE\.|\.FALSE\.
 COMMAND         ^(DIM|PART|DERIV|DUMP|DAMP|SAVE|NEXT|CASEID)
@@ -83,6 +86,7 @@ ARRVAR          {ID}"(1)"{WS}*"="
 NACAAIRFOIL     "NACA"{WS}?{ALPHA}{WS}?{DIGIT}{WS}?{DIGIT}+
 LINECOMMENT     ^"*"[^\n]*
 LENDCOMMENT     "!"[^\n]*
+EOL             "\n"
 
 /*******************************************************************************
  * Rules
@@ -153,15 +157,18 @@ LENDCOMMENT     "!"[^\n]*
 {LENDCOMMENT}
     /* Drop comment lines */
 
-[,\n]
+{EOL} {
+    line_number++;
+}
+
+","
     /* Eat ',' and newline */
 
 {WS}+
     /* Eat up whitespace */
 
 . {
-    fprintf(stderr, "Unrecognized character: %s\n", yytext);
-    exit(-1);
+    Fail();
 }
 
 %%
@@ -181,6 +188,8 @@ void ReadDatcom(char* filename, AIRCRAFT* aircraft)
 
 static void InitializeParser(AIRCRAFT* aircraft)
 {
+    line_number = 0;
+
     current_aircraft = aircraft;
     current_namelist = NL_NONE;
     next_double      = NULL;
@@ -191,6 +200,13 @@ static void InitializeParser(AIRCRAFT* aircraft)
     bzero(&current_aircraft->synths, sizeof(struct SYNTHS));
     bzero(&current_aircraft->wing, sizeof(struct WGPLNF));
     bzero(&current_aircraft->wingfoil, sizeof(struct AIRFOIL));
+}
+
+static void Fail()
+{
+    fprintf(stderr, "Unrecognized character '%s' at line %d\n",
+            yytext, line_number);
+    exit(-1);
 }
 
 static void BeginNameList(char* name)
