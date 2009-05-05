@@ -27,6 +27,9 @@
 #include <stdlib.h>
 #include "datcom-parser.h"
 
+int dofoils(DATCOM_AIRFOIL *datcomfoil, struct AIRFOIL *foil);
+
+
 void PrintAC(struct AIRCRAFT *ac)
 {
 	return;
@@ -35,56 +38,52 @@ void PrintAC(struct AIRCRAFT *ac)
 int main(int argc, char *argv[])
 {
 	AIRCRAFT ac;
-	int verbose;
 
+/* eventually we should read these on the command line */
+	int verbose=0;
 	int wing=1;
 	int htail=1;
 	int vtail=1;
 	int vfin=1;
 	int body=1;
 
-	int objects = 6;
 
+/* internal variables */
+	int objects = 0;
 	struct AIRFOIL wingfoil;
 	struct AIRFOIL htailfoil;
 	struct AIRFOIL vtailfoil;
+	struct AIRFOIL vfinfoil;
  
     if (argc > 1) {
       ReadDatcom(argv[1], &ac);
       PrintAC(&ac);
 
 /* Process wingfoil */
-	if (ac.wingfoil.NPTS && ac.wingfoil.YUPPER && ac.wingfoil.YLOWER) 
-		DatcomFoil(&ac.wingfoil, &wingfoil);
-	else if(ac.wingfoil.NACA_DESCR)
-	      NacaFoil(ac.wingfoil.NACA_DESCR, &wingfoil);
-	else {
-		wing=0;
-		objects -= 2;
-        }		
+	if (wing) wing = dofoils(&ac.wingfoil, &wingfoil);
+	if (wing) objects += 2;
+ 		
 /* Process htailfoil */
-	if (ac.htailfoil.NPTS && ac.htailfoil.YUPPER && ac.htailfoil.YLOWER) 
-		DatcomFoil(&ac.htailfoil, &htailfoil);
-	else if(ac.htailfoil.NACA_DESCR)
-	      NacaFoil(ac.htailfoil.NACA_DESCR, &htailfoil);
-	else {
-              htail=0;
-              objects -= 2;
-        }
+	if (htail) htail =  dofoils(&ac.htailfoil, &htailfoil);
+	if (htail) objects += 2;
+ 	
 /* Process vtailfoil */
-	if (ac.vtailfoil.NPTS && ac.vtailfoil.YUPPER && ac.vtailfoil.YLOWER) 
-		DatcomFoil(&ac.vtailfoil, &vtailfoil);
-	else if(ac.vtailfoil.NACA_DESCR)
-	      NacaFoil(ac.vtailfoil.NACA_DESCR, &vtailfoil);
-	else {
-              vtail=0;
-              objects -= 1;
-        }
+       	if (vtail) vtail =  dofoils(&ac.vtailfoil, &vtailfoil);
+	if (vtail) objects += 1;
+
+//* Process vfinfoil */
+       	if (vfin) vfin =  dofoils(&ac.vfinfoil, &vfinfoil);
+	if (vfin) objects += 1;
+
+/* Process Body */
+	if (body) body=ac.body.NX > 0. ? 1 : 0;
+	if (body) objects +=1;
 
       InitAC(stdout, objects );
       if (wing) WriteWing(stdout, &ac.wing, &wingfoil, "Wing", ac.synths.XW, ac.synths.ZW);
       if (htail) WriteWing(stdout, &ac.htail, &htailfoil, "H-Tail", ac.synths.XH, ac.synths.ZH);
       if (vtail) WriteFin(stdout, &ac.vtail, &vtailfoil, "V-Tail", ac.synths.XV, ac.synths.ZV);
+      if (vfin) WriteFin(stdout, &ac.vfin, &vfinfoil, "V-Fin", ac.synths.XVF, ac.synths.ZVF);
       if (body) WriteBody(stdout, &ac.body, &ac.synths);
     } else {
       fprintf(stderr, "Usage: %s datcom-file\n", argv[0]);
@@ -92,3 +91,14 @@ int main(int argc, char *argv[])
     return(0);
 }
 
+int dofoils(DATCOM_AIRFOIL *datcomfoil, struct AIRFOIL *foil)
+{
+        if (datcomfoil->NPTS && datcomfoil->YUPPER && datcomfoil->YLOWER)
+                DatcomFoil(datcomfoil, foil);
+        else if(datcomfoil->NACA_DESCR)
+              NacaFoil(datcomfoil->NACA_DESCR, foil);
+        else return(0); 
+
+
+	return(1);
+}
