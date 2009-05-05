@@ -34,7 +34,7 @@ int skinsurface(FILE *ofp, int a, int count, int type, int color, int reverse);
 int InitAC(FILE *ofp, int kids)
 {
 	fprintf(ofp,"AC3Db\n");
-	fprintf(ofp,"MATERIAL \"zinc chromate\" rgb 0.455 0.722 0.169  amb 0.455 0.722 0.169  emis 0 0 0  spec 0.227 0.161 0.161  shi 65  trans 0\n");
+	fprintf(ofp,"MATERIAL \"zinc-chromate\" rgb 0.455 0.722 0.169  amb 0.455 0.722 0.169  emis 0 0 0  spec 0.227 0.161 0.161  shi 65  trans 0\n");
 	fprintf(ofp,"MATERIAL \"white\" rgb 1 1 1  amb 1 1 1  emis 0 0 0  spec 0 0 0  shi 10  trans 0 \n");
 	fprintf(ofp,"MATERIAL \"red\" rgb 1 0.5 0.5  amb 1 0.5 0.5  emis 0 0 0  spec 0 0 0  shi 10  trans 0 \n");
 	fprintf(ofp,"OBJECT world\nkids %d\n", kids);
@@ -70,6 +70,7 @@ int WriteBody(FILE *ofp, struct BODY *body, struct SYNTHS *synths)
 	}
 	good=1;
   } else {
+	fprintf(stderr,"Not enough data found to draw a body, sorry. P=%d, R=%d, S=%d, Z=%d\n", p, r, s, z);
 	return 0; //not enough data to proceed
   }
 
@@ -112,6 +113,7 @@ int WriteBody(FILE *ofp, struct BODY *body, struct SYNTHS *synths)
         {
                 tubesurface(ofp, (i+1) * 20, (i) * 20 , 20, 0x30, 0);
         }
+	fprintf(ofp,"kids 0\n");
  	return(1);
 }
 
