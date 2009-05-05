@@ -27,7 +27,7 @@
 #include <stdlib.h>
 #include "datcom-parser.h"
 
-int dofoils(DATCOM_AIRFOIL *datcomfoil, struct AIRFOIL *foil);
+int dofoils(DATCOM_AIRFOIL *datcomfoil, struct AIRFOIL *foil, char * defaultfoil);
 
 
 void PrintAC(struct AIRCRAFT *ac)
@@ -60,19 +60,23 @@ int main(int argc, char *argv[])
       PrintAC(&ac);
 
 /* Process wingfoil */
-	if (wing) wing = dofoils(&ac.wingfoil, &wingfoil);
+	if (wing) wing = ac.wing.CHRDR > 0. ? 1 : 0; // only render if root chord exists
+	if (wing) wing = dofoils(&ac.wingfoil, &wingfoil, "NACA-W-4-2414");
 	if (wing) objects += 2;
  		
 /* Process htailfoil */
-	if (htail) htail =  dofoils(&ac.htailfoil, &htailfoil);
+	if (htail) htail = ac.htail.CHRDR > 0. ? 1 : 0; // only render if root chord exists
+	if (htail) htail =  dofoils(&ac.htailfoil, &htailfoil, "NACA-H-4-0014");
 	if (htail) objects += 2;
  	
 /* Process vtailfoil */
-       	if (vtail) vtail =  dofoils(&ac.vtailfoil, &vtailfoil);
+	if (vtail) vtail = ac.vtail.CHRDR > 0. ? 1 : 0; // only render if root chord exists
+       	if (vtail) vtail =  dofoils(&ac.vtailfoil, &vtailfoil, "NACA-V-4-0012");
 	if (vtail) objects += 1;
 
 //* Process vfinfoil */
-       	if (vfin) vfin =  dofoils(&ac.vfinfoil, &vfinfoil);
+	if (vfin) vfin = ac.vfin.CHRDR > 0. ? 1 : 0; // only render if root chord exists
+       	if (vfin) vfin =  dofoils(&ac.vfinfoil, &vfinfoil, "NACA-F-4-0012");
 	if (vfin) objects += 1;
 
 /* Process Body */
@@ -91,12 +95,14 @@ int main(int argc, char *argv[])
     return(0);
 }
 
-int dofoils(DATCOM_AIRFOIL *datcomfoil, struct AIRFOIL *foil)
+int dofoils(DATCOM_AIRFOIL *datcomfoil, struct AIRFOIL *foil, char * defaultfoil)
 {
         if (datcomfoil->NPTS && datcomfoil->YUPPER && datcomfoil->YLOWER)
                 DatcomFoil(datcomfoil, foil);
         else if(datcomfoil->NACA_DESCR)
               NacaFoil(datcomfoil->NACA_DESCR, foil);
+	else if(defaultfoil) 
+		NacaFoil(defaultfoil, foil);
         else return(0); 
 
 

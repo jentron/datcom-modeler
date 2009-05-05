@@ -44,8 +44,8 @@ int WriteBody(FILE *ofp, struct BODY *body, struct SYNTHS *synths)
 {
 	int i, j;
 	double theta=0, step=0.314159, ZR, ZC, YR;
-	int p,r,s,z, good;
-	p=r=s=z=good=0;
+	double p=0,r=0,s=0,z=0;
+	int good=0;
 /* first we look at the data structure too see what information we've been provided */
 	for(i=0; i < body->NX; i++)
         {
