@@ -140,9 +140,9 @@ int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *nam
 		offset_x[3]=offset_x[0]+tan(wing->SAVSI * 0.017453293)*span[2] + sin(wing->SAVSO * 0.017453293)*wing->SSPNOP;
 // SSPNDD  * cos (dihedral) = SSPNOP ??
 		offset_z[0]=Z;
-		offset_z[1]=Z;
-		offset_z[2]=Z + sin(wing->DHDADI * 0.017453293) * (wing->SSPNE-wing->SSPNOP);
-		offset_z[3]=Z + sin(wing->DHDADI * 0.017453293) * (wing->SSPNE-wing->SSPNOP) 
+		offset_z[1]=Z + sin(wing->DHDADI * 0.017453293) * (wing->SSPN - wing->SSPNE);
+		offset_z[2]=Z + sin(wing->DHDADI * 0.017453293) * (wing->SSPN -wing->SSPNOP);
+		offset_z[3]=Z + sin(wing->DHDADI * 0.017453293) * (wing->SSPN -wing->SSPNOP) 
                               + sin(wing->DHDADO * 0.017453293) * (wing->SSPNOP) ;
 	} else {
 		ribs=3;
@@ -157,8 +157,8 @@ int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *nam
 		offset_x[1]=offset_x[0]+tan(wing->SAVSI * 0.017453293)*span[1];
 		offset_x[2]=offset_x[0]+tan(wing->SAVSI * 0.017453293)*span[2];
 		offset_z[0]=Z;
-		offset_z[1]=Z;
-		offset_z[2]=Z + sin(wing->DHDADI * 0.017453293) * (wing->SSPNE);
+		offset_z[1]=Z + sin(wing->DHDADI * 0.017453293) * (wing->SSPN - wing->SSPNE);
+		offset_z[2]=Z + sin(wing->DHDADI * 0.017453293) * (wing->SSPN);
 	}
 
 	fprintf(ofp,"OBJECT poly\nname \"Left %s\"\ncrease 45.0\nnumvert %d\n", name, airfoil->COUNT * ribs); // three or four based on type
