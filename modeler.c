@@ -42,7 +42,7 @@ int InitAC(FILE *ofp, int kids)
 }
 int WriteBody(FILE *ofp, struct BODY *body, struct SYNTHS *synths)
 {
-	int i, j;
+	int i, j, points=20;
 	double theta=0, step=0.314159, ZR, ZC, YR;
 	double p=0,r=0,s=0,z=0;
 	int good=0;
@@ -76,13 +76,13 @@ int WriteBody(FILE *ofp, struct BODY *body, struct SYNTHS *synths)
 
 
 /* then we might be able to make use of it */
-        fprintf(ofp,"OBJECT poly\nname \"Body\"\ncrease 45.0\nnumvert %d\n", body->NX * 20); // 
+        fprintf(ofp,"OBJECT poly\nname \"Body\"\ncrease 45.0\nnumvert %d\n", body->NX * points); // 
    if( z )
    {
 	for(i=0; i < body->NX; i++)
 	{
 		theta=0;
-		for(j = 0; j < 20; j++)
+		for(j = 0; j < points; j++)
 		{
 			ZR = (body->ZU[i]-body->ZL[i])/2;
 			ZC = body->ZU[i]-ZR;
@@ -96,7 +96,7 @@ int WriteBody(FILE *ofp, struct BODY *body, struct SYNTHS *synths)
 	for(i=0; i < body->NX; i++)
 	{
 		theta=0;
-		for(j = 0; j < 20; j++)
+		for(j = 0; j < points; j++)
 		{
 			fprintf(ofp,"%f %f %f\n", body->X[i], 
 				cos(theta)*body->R[i],
@@ -108,10 +108,10 @@ int WriteBody(FILE *ofp, struct BODY *body, struct SYNTHS *synths)
   }
 
 
-        fprintf(ofp,"numsurf %d\n", 40 * ( body->NX -1 ));
+        fprintf(ofp,"numsurf %d\n", points * 2 * ( body->NX -1 ));
         for(i=0;i<body->NX - 1;i++)
         {
-                tubesurface(ofp, (i+1) * 20, (i) * 20 , 20, 0x30, 0);
+                tubesurface(ofp, (i+1) * points, (i) * points , points, 0x30, 0);
         }
 	fprintf(ofp,"kids 0\n");
  	return(1);
@@ -137,13 +137,13 @@ int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *nam
 		offset_x[0]=X+wing->CHSTAT*wing->CHRDR;
 		offset_x[1]=offset_x[0]+tan(wing->SAVSI * 0.017453293)*span[1];
 		offset_x[2]=offset_x[0]+tan(wing->SAVSI * 0.017453293)*span[2];
-		offset_x[3]=offset_x[0]+tan(wing->SAVSI * 0.017453293)*span[2] + tan(wing->SAVSO * 0.017453293)*wing->SSPNOP;
+		offset_x[3]=offset_x[0]+tan(wing->SAVSI * 0.017453293)*span[2] + sin(wing->SAVSO * 0.017453293)*wing->SSPNOP;
 // SSPNDD  * cos (dihedral) = SSPNOP ??
 		offset_z[0]=Z;
 		offset_z[1]=Z;
-		offset_z[2]=Z + tan(wing->DHDADI * 0.017453293) * (wing->SSPNE-wing->SSPNOP);
-		offset_z[3]=Z + tan(wing->DHDADI * 0.017453293) * (wing->SSPNE-wing->SSPNOP) 
-                              + tan(wing->DHDADO * 0.017453293) * (wing->SSPNOP) ;
+		offset_z[2]=Z + sin(wing->DHDADI * 0.017453293) * (wing->SSPNE-wing->SSPNOP);
+		offset_z[3]=Z + sin(wing->DHDADI * 0.017453293) * (wing->SSPNE-wing->SSPNOP) 
+                              + sin(wing->DHDADO * 0.017453293) * (wing->SSPNOP) ;
 	} else {
 		ribs=3;
 		sections=2;
@@ -158,7 +158,7 @@ int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *nam
 		offset_x[2]=offset_x[0]+tan(wing->SAVSI * 0.017453293)*span[2];
 		offset_z[0]=Z;
 		offset_z[1]=Z;
-		offset_z[2]=Z + tan(wing->DHDADI * 0.017453293) * (wing->SSPNE);
+		offset_z[2]=Z + sin(wing->DHDADI * 0.017453293) * (wing->SSPNE);
 	}
 
 	fprintf(ofp,"OBJECT poly\nname \"Left %s\"\ncrease 45.0\nnumvert %d\n", name, airfoil->COUNT * ribs); // three or four based on type
