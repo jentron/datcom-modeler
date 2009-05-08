@@ -85,7 +85,7 @@ int WriteBody(FILE *ofp, struct BODY *body, struct SYNTHS *synths)
 
   }
 /* then we might be able to make use of it */
-        fprintf(ofp,"OBJECT poly\nname \"Body\"\ncrease 45.0\nnumvert %d\n", body->NX * points); // 
+        fprintf(ofp,"OBJECT poly\nname \"Body\"\ncrease 89.0\nnumvert %d\n", body->NX * points); // 
    if( z )
    {
 	for(i=0; i < body->NX; i++)
