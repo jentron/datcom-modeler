@@ -35,15 +35,15 @@ int InitAC(FILE *ofp, int kids)
 {
 	fprintf(ofp,"AC3Db\n");
 	fprintf(ofp,"MATERIAL \"zinc-chromate\" rgb 0.455 0.722 0.169  amb 0.455 0.722 0.169  emis 0 0 0  spec 0.227 0.161 0.161  shi 65  trans 0\n");
-	fprintf(ofp,"MATERIAL \"white\" rgb 1 1 1  amb 1 1 1  emis 0 0 0  spec 0 0 0  shi 10  trans 0 \n");
-	fprintf(ofp,"MATERIAL \"red\" rgb 1 0.5 0.5  amb 1 0.5 0.5  emis 0 0 0  spec 0 0 0  shi 10  trans 0 \n");
+	fprintf(ofp,"MATERIAL \"white\" rgb 0.788 0.788 0.788  amb 0.788 0.788 0.788  emis 0 0 0  spec 1 1 1  shi 65  trans 0\n");
+	fprintf(ofp,"MATERIAL \"red\" rgb 0.906 0.369 0.31  amb 0.906 0.369 0.37  emis 0 0 0  spec 0 0 0  shi 65  trans 0 \n");
 	fprintf(ofp,"OBJECT world\nkids %d\n", kids);
 
 }
 int WriteBody(FILE *ofp, struct BODY *body, struct SYNTHS *synths)
 {
-	int i, j, points=20;
-	double theta=0, step=0.314159, ZR, ZC, YR;
+	int i, j, points=32;
+	double theta=0, step=6.2831853 / (double) points, ZR, ZC, YR;
 	double p=0,r=0,s=0,z=0;
 	int good=0;
 /* first we look at the data structure too see what information we've been provided */
@@ -52,7 +52,7 @@ int WriteBody(FILE *ofp, struct BODY *body, struct SYNTHS *synths)
 		p += body->P[i]; // P(erimiter) should always be positve!
 		r += body->R[i]; // R(adius) should always be positve!
 		s += body->S[i]; // S(urface area) should always be positve!
-		z += abs(body->ZU[i]) + abs(body->ZL[i]) ; // Upper and lower bounds can have sign
+		z += fabs(body->ZU[i]) + fabs(body->ZL[i]) ; // Upper and lower bounds can have sign
 	}
 /* Synthesize "R" if needed */
   if(r) good=1;
