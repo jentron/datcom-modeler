@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include <math.h>
 
-#define pi 3.1415927
+#define pi    3.1415927
+#define ROOT2 1.4142136
 
 #include "modeler.h"
 #include "modeler_proto.h"
@@ -47,36 +48,60 @@ RIB3D *GetRib(double S, double P, double YR, double ZR, double XC, double YC, do
 	double d,f=1.0,theta=0.0,step,s_norm, area;
 	int i;
 
-
+	step = (pi/4.0)/(points/8);
 	area = (YR*ZR);
 	if (area) s_norm = S / area;
 	else s_norm = 0.;
-	d = (s_norm-pi)/(4.0-pi);
-	step = (pi/4.0)/(points/8);
-	for(i=0;i < (points/8)+1 ; i++, theta += step)
+	if( s_norm > 3.14 ) /* interpolate towards a square shape */
 	{
-		f = (fabs(1.0/cos(theta)) - 1) * d  + 1;
-		fprintf(stdout,"%f %f %f\n", XC, cos(theta)*f*ZR+ZC, sin(theta)*f*YR+YC);
+		d = (s_norm-pi)/(4.0-pi);
+		for(i=0;i < (points/8)+1 ; i++, theta += step)
+		{
+			f = (fabs(1.0/cos(theta)) - 1) * d  + 1;
+			fprintf(stdout,"%f %f %f\n", XC, cos(theta)*f*ZR+ZC, sin(theta)*f*YR+YC);
+		}
+		for(i=0 ;i < points/4 ; i++, theta += step)
+		{
+			f = (fabs(1.0/sin(theta)) - 1) * d + 1;
+			fprintf(stdout,"%f %f %f\n", XC, cos(theta)*f*ZR+ZC, sin(theta)*f*YR+YC);
+		}
+		for(i=0;i < points/4; i++, theta += step)
+		{
+			f = (fabs (1.0/cos(theta)) - 1) * d + 1;
+			fprintf(stdout,"%f %f %f\n", XC, cos(theta)*f*ZR+ZC, sin(theta)*f*YR+YC);
+		}
+		for(i=0 ;i < points/4 ; i++, theta += step)
+		{
+			f = (fabs(1.0/sin(theta)) - 1) * d + 1;
+			fprintf(stdout,"%f %f %f\n", XC, cos(theta)*f*ZR+ZC, sin(theta)*f*YR+YC);
+		}
+		for(i=0;i < (points/8) - 1; i++, theta += step)
+		{
+			f = (fabs (1.0/cos(theta)) - 1) * d + 1;
+			fprintf(stdout,"%f %f %f\n", XC, cos(theta)*f*ZR+ZC, sin(theta)*f*YR+YC);
+		}
+	} else { /* s_norm < 3.14, interpolate towards a diamond shape */
+		d = (s_norm-pi)/(4.0-pi)*(-pi/4);
+		for(i=0;i < points/4 ; i++, theta += step)
+		{            //     ROOOT2/( 2 * sin(0.75*pi-theta))
+			f = (( ROOT2/( 2 * sin(0.75*pi-theta)) ) - 1) * d  + 1;
+			fprintf(stdout,"%f %f %f\n", XC, cos(theta)*f*ZR+ZC, sin(theta)*f*YR+YC);
+		}
+		for(i=0 ;i < points/4 ; i++, theta += step)
+		{
+			f = (( ROOT2/( 2 * cos(0.75*pi-theta)) ) - 1) * d  + 1;
+			fprintf(stdout,"%f %f %f\n", XC, cos(theta)*f*ZR+ZC, sin(theta)*f*YR+YC);
+		}
+		for(i=0;i < points/4; i++, theta += step)
+		{
+			f = (( ROOT2/-( 2 * sin(0.75*pi-theta)) ) - 1) * d  + 1;
+			fprintf(stdout,"%f %f %f\n", XC, cos(theta)*f*ZR+ZC, sin(theta)*f*YR+YC);
+		}
+		for(i=0 ;i < points/4 ; i++, theta += step)
+		{
+			f = (( ROOT2/-( 2 * cos(0.75*pi-theta)) ) - 1) * d  + 1;
+			fprintf(stdout,"%f %f %f\n", XC, cos(theta)*f*ZR+ZC, sin(theta)*f*YR+YC);
+		}
+		
 	}
-	for(i=0 ;i < points/4 ; i++, theta += step)
-	{
-		f = (fabs(1.0/sin(theta)) - 1) * d + 1;
-		fprintf(stdout,"%f %f %f\n", XC, cos(theta)*f*ZR+ZC, sin(theta)*f*YR+YC);
-	}
-	for(i=0;i < points/4; i++, theta += step)
-	{
-		f = (fabs (1.0/cos(theta)) - 1) * d + 1;
-		fprintf(stdout,"%f %f %f\n", XC, cos(theta)*f*ZR+ZC, sin(theta)*f*YR+YC);
-	}
-	for(i=0 ;i < points/4 ; i++, theta += step)
-	{
-		f = (fabs(1.0/sin(theta)) - 1) * d + 1;
-		fprintf(stdout,"%f %f %f\n", XC, cos(theta)*f*ZR+ZC, sin(theta)*f*YR+YC);
-	}
-	for(i=0;i < (points/8) - 1; i++, theta += step)
-	{
-		f = (fabs (1.0/cos(theta)) - 1) * d + 1;
-		fprintf(stdout,"%f %f %f\n", XC, cos(theta)*f*ZR+ZC, sin(theta)*f*YR+YC);
-	}
-	
 }
