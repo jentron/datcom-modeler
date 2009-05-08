@@ -34,6 +34,17 @@ int WriteFin(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *name
 /* Functions in naca.c */
 int NacaFoil(char *name, struct AIRFOIL *foil);
 
+
+/* Functions in body.c */
+/******
+ * 
+ * S = Area of rib,  P = Perimiter of rib
+ * XR = X Radius, ZR = Z Radius
+ * XC = X Center,  ZC = Z Center
+ *
+ ******/
+RIB3D *GetRib(double S, double P, double XR, double ZR, double XC, double YC, double ZC, int points);
+
 #define MODELER_PROTO_H
 #endif
 

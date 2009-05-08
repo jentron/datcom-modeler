@@ -43,7 +43,7 @@ int InitAC(FILE *ofp, int kids)
 int WriteBody(FILE *ofp, struct BODY *body, struct SYNTHS *synths)
 {
 	int i, j, points=32;
-	double theta=0, step=6.2831853 / (double) points, ZR, ZC, YR;
+	double ZR, ZC;
 	double p=0,r=0,s=0,z=0;
 	int good=0;
 /* first we look at the data structure too see what information we've been provided */
@@ -74,35 +74,30 @@ int WriteBody(FILE *ofp, struct BODY *body, struct SYNTHS *synths)
 	return 0; //not enough data to proceed
   }
 
+/* Synthesize "S" if needed */
+  if(!s)
+  {
+        for(i=0; i < body->NX; i++)
+        {
+		if(z) body->S[i] = body->R[i]*((body->ZU[i]-body->ZL[i])/2)*3.14159; 
+		else body->S[i] = body->R[i]*body->R[i]*3.14159 ;
+        }
 
+  }
 /* then we might be able to make use of it */
         fprintf(ofp,"OBJECT poly\nname \"Body\"\ncrease 45.0\nnumvert %d\n", body->NX * points); // 
    if( z )
    {
 	for(i=0; i < body->NX; i++)
 	{
-		theta=0;
-		for(j = 0; j < points; j++)
-		{
-			ZR = (body->ZU[i]-body->ZL[i])/2;
-			ZC = body->ZU[i]-ZR;
-			fprintf(ofp,"%f %f %f\n", body->X[i], 
-				cos(theta)*ZR + ZC,
-				sin(theta)*body->R[i]);
-			theta+=step;
-		}
+		ZR = (body->ZU[i]-body->ZL[i])/2;
+		ZC = body->ZU[i]-ZR;
+		GetRib(body->S[i], body->P[i], body->R[i], ZR, body->X[i], 0.0, ZC, points);
 	}
-  } else {
+   } else {
 	for(i=0; i < body->NX; i++)
 	{
-		theta=0;
-		for(j = 0; j < points; j++)
-		{
-			fprintf(ofp,"%f %f %f\n", body->X[i], 
-				cos(theta)*body->R[i],
-				sin(theta)*body->R[i]);
-			theta+=step;
-		}
+		GetRib(body->S[i], body->P[i], body->R[i], body->R[i], body->X[i], 0.0, 0.0, points);
 	}
 
   }

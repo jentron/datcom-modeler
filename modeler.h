@@ -139,6 +139,15 @@ struct AIRFOIL{
 	double *DATAY;
 };
 
+typedef struct RIB3D {
+	int count;  /* Number of entries */
+        double *X; /* data elements */
+        double *Y;
+	double *Z;
+} RIB3D;
+
+
+
 #define MODELER_H
 #endif
 

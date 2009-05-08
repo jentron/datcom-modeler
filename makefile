@@ -1,5 +1,5 @@
 CFLAGS = -g
-OBJECTS = modeler.o datcom-parser.o datcomfoil.o naca.o
+OBJECTS = modeler.o datcom-parser.o datcomfoil.o naca.o body.o
 
 datcom-modeler: main.c $(OBJECTS)
 	$(CC) $(CFLAGS) main.c $(OBJECTS) -o $@ -lm
@@ -7,8 +7,11 @@ datcom-modeler: main.c $(OBJECTS)
 modeler.o: modeler.h modeler.c
 	$(CC) $(CFLAGS) modeler.c -c -o $@ 
 
-naca.o: naca.c modeler.h
+naca.o: naca.c modeler.h modeler_proto.h
 	$(CC) $(CFLAGS) naca.c -c -o $@ 
+
+body.o: body.c modeler.h modeler_proto.h
+	$(CC) $(CFLAGS) body.c -c -o $@ 
 
 datcom-parser.o: datcom-parser.h modeler.h datcom-parser.c
 	$(CC) $(CFLAGS) datcom-parser.c -c -o $@ 
