@@ -43,7 +43,7 @@ int NacaFoil(char *name, struct AIRFOIL *foil);
  * XC = X Center,  ZC = Z Center
  *
  ******/
-RIB3D *GetRib(double S, double P, double XR, double ZR, double XC, double YC, double ZC, int points);
+RIB3D *GetRib(double S, double P, double XR, double ZR, double XC, double YC, double ZC, int points, FILE *ofp);
 
 #define MODELER_PROTO_H
 #endif

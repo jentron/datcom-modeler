@@ -4,7 +4,7 @@
  *
  *  Copyright (C) 2009  Anders Gidenstam (anders(at)gidenstam.org)
  *  Copyright (C) 2009  Ronald Jensen    (ron(at)jentronics.com)
- *  http://www.gidenstam.org 
+ *  http://www.gidenstam.org
  *  http://www.jentronics.com
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -23,6 +23,7 @@
  *=============================================================================
  */
 
+#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "datcom-parser.h"
@@ -33,6 +34,11 @@ int dofoils(DATCOM_AIRFOIL *datcomfoil, struct AIRFOIL *foil, char * defaultfoil
 void PrintAC(struct AIRCRAFT *ac)
 {
 	return;
+}
+
+void Usage(char *name)
+{
+	fprintf(stderr, "Usage: %s [-n b|w|h|v|f] [-v] [-o ac-file] datcom-file\n", name);
 }
 
 int main(int argc, char *argv[])
@@ -46,6 +52,8 @@ int main(int argc, char *argv[])
 	int vtail=1;
 	int vfin=1;
 	int body=1;
+	int opt;
+	FILE *ofp = stdout;
 
 
 /* internal variables */
@@ -54,21 +62,72 @@ int main(int argc, char *argv[])
 	struct AIRFOIL htailfoil;
 	struct AIRFOIL vtailfoil;
 	struct AIRFOIL vfinfoil;
- 
-    if (argc > 1) {
-      ReadDatcom(argv[1], &ac);
-      PrintAC(&ac);
+
+	verbose = 0;
+	while ((opt = getopt(argc, argv, "n:o:v")) != -1)
+	{
+		switch (opt)
+		{
+			case 'n':
+				switch(optarg[0])
+				{
+					case 'b':
+						body=0;
+						break;
+					case 'w':
+						wing=0;
+						break;
+					case 'h':
+						htail=0;
+						break;
+					case 'v':
+						vtail=0;
+						break;
+					case 'f':
+						vfin = 0;
+						break;
+					default:
+						Usage(argv[0]);
+						exit(EXIT_FAILURE);
+				}
+				break;
+			case 'o':
+				fprintf(stderr, "Creating file: %s\n",  optarg);
+				if( ( ofp = fopen(optarg, "w")) == NULL)
+				{
+					fprintf(stderr,"Unable to open %s for writing\n", optarg);
+					exit(EXIT_FAILURE);
+				}
+				break;
+			case 'v':
+				verbose = 1;
+				break;
+			default: /* '?' */
+				Usage(argv[0]);
+				exit(EXIT_FAILURE);
+		}
+	}
+
+//	fprintf(stderr, "verbose=%d; optind=%d\n", verbose, optind);
+
+	if (optind >= argc) {
+		Usage(argv[0]);
+		exit(EXIT_FAILURE);
+	}
+
+   ReadDatcom(argv[optind], &ac);
+   PrintAC(&ac);
 
 /* Process wingfoil */
 	if (wing) wing = ac.wing.CHRDR > 0. ? 1 : 0; // only render if root chord exists
 	if (wing) wing = dofoils(&ac.wingfoil, &wingfoil, "NACA-W-4-2414");
 	if (wing) objects += 2;
- 		
+
 /* Process htailfoil */
 	if (htail) htail = ac.htail.CHRDR > 0. ? 1 : 0; // only render if root chord exists
 	if (htail) htail =  dofoils(&ac.htailfoil, &htailfoil, "NACA-H-4-0014");
 	if (htail) objects += 2;
- 	
+
 /* Process vtailfoil */
 	if (vtail) vtail = ac.vtail.CHRDR > 0. ? 1 : 0; // only render if root chord exists
        	if (vtail) vtail =  dofoils(&ac.vtailfoil, &vtailfoil, "NACA-V-4-0012");
@@ -83,15 +142,12 @@ int main(int argc, char *argv[])
 	if (body) body=ac.body.NX > 0. ? 1 : 0;
 	if (body) objects +=1;
 
-      InitAC(stdout, objects );
-      if (wing) WriteWing(stdout, &ac.wing, &wingfoil, "Wing", ac.synths.XW, ac.synths.ZW);
-      if (htail) WriteWing(stdout, &ac.htail, &htailfoil, "H-Tail", ac.synths.XH, ac.synths.ZH);
-      if (vtail) WriteFin(stdout, &ac.vtail, &vtailfoil, "V-Tail", ac.synths.XV, ac.synths.ZV);
-      if (vfin) WriteFin(stdout, &ac.vfin, &vfinfoil, "V-Fin", ac.synths.XVF, ac.synths.ZVF);
-      if (body) WriteBody(stdout, &ac.body, &ac.synths);
-    } else {
-      fprintf(stderr, "Usage: %s datcom-file\n", argv[0]);
-    }
+      InitAC(ofp, objects );
+      if (wing) WriteWing(ofp, &ac.wing, &wingfoil, "Wing", ac.synths.XW, ac.synths.ZW);
+      if (htail) WriteWing(ofp, &ac.htail, &htailfoil, "H-Tail", ac.synths.XH, ac.synths.ZH);
+      if (vtail) WriteFin(ofp, &ac.vtail, &vtailfoil, "V-Tail", ac.synths.XV, ac.synths.ZV);
+      if (vfin) WriteFin(ofp, &ac.vfin, &vfinfoil, "V-Fin", ac.synths.XVF, ac.synths.ZVF);
+      if (body) WriteBody(ofp, &ac.body, &ac.synths);
     return(0);
 }
 
@@ -101,9 +157,9 @@ int dofoils(DATCOM_AIRFOIL *datcomfoil, struct AIRFOIL *foil, char * defaultfoil
                 DatcomFoil(datcomfoil, foil);
         else if(datcomfoil->NACA_DESCR)
               NacaFoil(datcomfoil->NACA_DESCR, foil);
-	else if(defaultfoil) 
+	else if(defaultfoil)
 		NacaFoil(defaultfoil, foil);
-        else return(0); 
+        else return(0);
 
 
 	return(1);

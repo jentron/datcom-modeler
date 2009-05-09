@@ -10,21 +10,21 @@
 
 
 #ifdef STANDALONE
-header(int verts)
+header(int verts, FILE *ofp)
 {
- fprintf(stdout,"AC3Db\nMATERIAL \"ac3dmat1\" rgb 0.5 1 0.2  amb 0.5 1.0 0.2  emis 0 0 0  spec 0 0 0  shi 10  trans 0\nOBJECT world\n");
- fprintf(stdout,"kids 1\nOBJECT poly\nname \"ellipse\"\nloc 0 0 0\ncrease 45.000000\nnumvert %d\n", verts);
+ fprintf(ofp,"AC3Db\nMATERIAL \"ac3dmat1\" rgb 0.5 1 0.2  amb 0.5 1.0 0.2  emis 0 0 0  spec 0 0 0  shi 10  trans 0\nOBJECT world\n");
+ fprintf(ofp,"kids 1\nOBJECT poly\nname \"ellipse\"\nloc 0 0 0\ncrease 45.000000\nnumvert %d\n", verts);
 }
 
-footer(int surfs)
+footer(int surfs, FILE *ofp)
 {
  int i;
- fprintf(stdout,"numsurf 1\nSURF 0x30\nmat 0\nrefs %d\n", surfs);
+ fprintf(ofp,"numsurf 1\nSURF 0x30\nmat 0\nrefs %d\n", surfs);
  for (i = surfs-1; i>=0;i--)
  {
-  fprintf(stdout,"%d 0 0\n", i);
+  fprintf(ofp,"%d 0 0\n", i);
  }
- fprintf(stdout,"kids 0\n");
+ fprintf(ofp,"kids 0\n");
 }
 
 
@@ -36,14 +36,14 @@ int main(int argc, char *argv[])
 	if (argc < 2) return 1;
 	S=strtod(argv[1], NULL);
 
-header(points);
+header(points, stdout);
 //	if(S < pi) return 1;
-	GetRib(S, 0., 1., 1., 0, 0, 0, points);
-footer(points);
+	GetRib(S, 0., 1., 1., 0, 0, 0, points, stdout);
+footer(points, stdout);
 }
 #endif
 
-RIB3D *GetRib(double S, double P, double YR, double ZR, double XC, double YC, double ZC, int points)
+RIB3D *GetRib(double S, double P, double YR, double ZR, double XC, double YC, double ZC, int points, FILE *ofp)
 {
 	double d,f=1.0,theta=0.0,step,s_norm, area;
 	int i;
@@ -62,49 +62,49 @@ RIB3D *GetRib(double S, double P, double YR, double ZR, double XC, double YC, do
 		for(i=0;i < (points/8)+1 ; i++, theta += step)
 		{
 			f = (fabs(1.0/cos(theta)) - 1) * d  + 1;
-			fprintf(stdout,"%f %f %f\n", XC, cos(theta)*f*ZR+ZC, sin(theta)*f*YR+YC);
+			fprintf(ofp,"%f %f %f\n", XC, cos(theta)*f*ZR+ZC, sin(theta)*f*YR+YC);
 		}
 		for(i=0 ;i < points/4 ; i++, theta += step)
 		{
 			f = (fabs(1.0/sin(theta)) - 1) * d + 1;
-			fprintf(stdout,"%f %f %f\n", XC, cos(theta)*f*ZR+ZC, sin(theta)*f*YR+YC);
+			fprintf(ofp,"%f %f %f\n", XC, cos(theta)*f*ZR+ZC, sin(theta)*f*YR+YC);
 		}
 		for(i=0;i < points/4; i++, theta += step)
 		{
 			f = (fabs (1.0/cos(theta)) - 1) * d + 1;
-			fprintf(stdout,"%f %f %f\n", XC, cos(theta)*f*ZR+ZC, sin(theta)*f*YR+YC);
+			fprintf(ofp,"%f %f %f\n", XC, cos(theta)*f*ZR+ZC, sin(theta)*f*YR+YC);
 		}
 		for(i=0 ;i < points/4 ; i++, theta += step)
 		{
 			f = (fabs(1.0/sin(theta)) - 1) * d + 1;
-			fprintf(stdout,"%f %f %f\n", XC, cos(theta)*f*ZR+ZC, sin(theta)*f*YR+YC);
+			fprintf(ofp,"%f %f %f\n", XC, cos(theta)*f*ZR+ZC, sin(theta)*f*YR+YC);
 		}
 		for(i=0;i < (points/8) - 1; i++, theta += step)
 		{
 			f = (fabs (1.0/cos(theta)) - 1) * d + 1;
-			fprintf(stdout,"%f %f %f\n", XC, cos(theta)*f*ZR+ZC, sin(theta)*f*YR+YC);
+			fprintf(ofp,"%f %f %f\n", XC, cos(theta)*f*ZR+ZC, sin(theta)*f*YR+YC);
 		}
 	} else { /* s_norm < 3.14, interpolate towards a diamond shape */
 		d = (s_norm-pi)/(4.0-pi)*(-pi/4);
 		for(i=0;i < points/4 ; i++, theta += step)
 		{            //     ROOOT2/( 2 * sin(0.75*pi-theta))
 			f = (( ROOT2/( 2 * sin(0.75*pi-theta)) ) - 1) * d  + 1;
-			fprintf(stdout,"%f %f %f\n", XC, cos(theta)*f*ZR+ZC, sin(theta)*f*YR+YC);
+			fprintf(ofp,"%f %f %f\n", XC, cos(theta)*f*ZR+ZC, sin(theta)*f*YR+YC);
 		}
 		for(i=0 ;i < points/4 ; i++, theta += step)
 		{
 			f = (( ROOT2/( 2 * cos(0.75*pi-theta)) ) - 1) * d  + 1;
-			fprintf(stdout,"%f %f %f\n", XC, cos(theta)*f*ZR+ZC, sin(theta)*f*YR+YC);
+			fprintf(ofp,"%f %f %f\n", XC, cos(theta)*f*ZR+ZC, sin(theta)*f*YR+YC);
 		}
 		for(i=0;i < points/4; i++, theta += step)
 		{
 			f = (( ROOT2/-( 2 * sin(0.75*pi-theta)) ) - 1) * d  + 1;
-			fprintf(stdout,"%f %f %f\n", XC, cos(theta)*f*ZR+ZC, sin(theta)*f*YR+YC);
+			fprintf(ofp,"%f %f %f\n", XC, cos(theta)*f*ZR+ZC, sin(theta)*f*YR+YC);
 		}
 		for(i=0 ;i < points/4 ; i++, theta += step)
 		{
 			f = (( ROOT2/-( 2 * cos(0.75*pi-theta)) ) - 1) * d  + 1;
-			fprintf(stdout,"%f %f %f\n", XC, cos(theta)*f*ZR+ZC, sin(theta)*f*YR+YC);
+			fprintf(ofp,"%f %f %f\n", XC, cos(theta)*f*ZR+ZC, sin(theta)*f*YR+YC);
 		}
 		
 	}

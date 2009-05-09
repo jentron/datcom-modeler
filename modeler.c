@@ -92,12 +92,12 @@ int WriteBody(FILE *ofp, struct BODY *body, struct SYNTHS *synths)
 	{
 		ZR = (body->ZU[i]-body->ZL[i])/2;
 		ZC = body->ZU[i]-ZR;
-		GetRib(body->S[i], body->P[i], body->R[i], ZR, body->X[i], 0.0, ZC, points);
+		GetRib(body->S[i], body->P[i], body->R[i], ZR, body->X[i], 0.0, ZC, points, ofp);
 	}
    } else {
 	for(i=0; i < body->NX; i++)
 	{
-		GetRib(body->S[i], body->P[i], body->R[i], body->R[i], body->X[i], 0.0, 0.0, points);
+		GetRib(body->S[i], body->P[i], body->R[i], body->R[i], body->X[i], 0.0, 0.0, points, ofp);
 	}
 
   }
