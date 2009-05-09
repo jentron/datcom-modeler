@@ -58,6 +58,16 @@ int NacaFoil(char *name, struct AIRFOIL *foil)
 	{
 		return(0); //not a naca description
 	}
+	m = i/1000;
+	i -= m*1000;
+	m *= 0.01;
+
+	p = i/100;
+	i -= p*100;
+	p *= 0.1;
+
+	t = (double)i * 0.01;
+
 	switch (name[7])
 	{
 	 case '1':
@@ -67,11 +77,33 @@ fprintf(stderr,"%s CASE 1\n", name);
 	 case '4':
 		foo = &name[9];
 		i = atoi(foo);
-fprintf(stderr,"%s CASE 4: %d\n", name, i);
+fprintf(stderr,"%s CASE 5: %d\n", name, i);
+		m = i/1000;
+		i -= m*1000;
+		m *= 0.01;
+
+		p = i/100;
+		i -= p*100;
+		p *= 0.1;
+
+		t = (double)i * 0.01;
+
 	 break;
 
-	 case '5':
-fprintf(stderr,"%s CASE 5\n", name);
+	 case '5':  /* Using Naca 4 series math */
+		foo = &name[9];
+		i = atoi(foo);
+fprintf(stderr,"%s CASE 5: %d ", name, i);
+		m = i/10000;
+		i -= m*10000;
+		m *= 0.01;
+
+		p = i/100;
+		i -= p*100;
+		p *= 0.005;
+
+		t = (double)i * 0.01;
+fprintf(stderr," m = %0.2f, p = %0.2f, t = %0.2f\n", m, p, t);
 	 break;
 
 	 case '6':
@@ -87,16 +119,6 @@ fprintf(stderr,"%s Unknown airfoil\n", name);
 	}
 
 
-
-	m = i/1000;
-	i -= m*1000;
-	m *= 0.01;
-
-	p = i/100;
-	i -= p*100;
-	p *= 0.1;
-
-	t = (double)i * 0.01;
 
 	naca4digit(m, p, t, foil); 
 }
