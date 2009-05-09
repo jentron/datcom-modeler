@@ -28,6 +28,8 @@
 #include <stdlib.h>
 #include "datcom-parser.h"
 
+int verbose=0; /* External to all other modules */
+
 int dofoils(DATCOM_AIRFOIL *datcomfoil, struct AIRFOIL *foil, char * defaultfoil);
 
 
@@ -45,8 +47,7 @@ int main(int argc, char *argv[])
 {
 	AIRCRAFT ac;
 
-/* eventually we should read these on the command line */
-	int verbose=0;
+/* We read these on the command line */
 	int wing=1;
 	int htail=1;
 	int vtail=1;

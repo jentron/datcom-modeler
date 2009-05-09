@@ -26,6 +26,7 @@
     #include <string.h>
     #include <math.h>
     #include "datcom-parser.h"
+    extern int verbose;
 
     /* Internal global variables. */
     static AIRCRAFT* current_aircraft;
@@ -113,22 +114,22 @@ LENDCOMMENT     "!"{NEOL}*
 %%
 
 <namelist>{DOUBLE} {
-    //fprintf(stderr,"    DOUBLE: %g\n", atof(yytext));
+    if (verbose) fprintf(stderr,"    DOUBLE: %g\n", atof(yytext));
     ReadNumber(yytext);
 }
 
 <namelist>{BOOL} {
-    //fprintf(stderr,"    BOOL: %s\n", yytext);
+    if (verbose) fprintf(stderr,"    BOOL: %s\n", yytext);
 }
 
 <INITIAL>{NAMELIST} {
-    //fprintf(stderr,"NAMELIST: %s\n", yytext);
+    if (verbose) fprintf(stderr,"NAMELIST: %s\n", yytext);
     BEGIN(namelist);
     BeginNameList(yytext);
 }
 
 <namelist>"$" {
-    //fprintf(stderr,"END OF NAMELIST\n");
+    if (verbose) fprintf(stderr,"END OF NAMELIST\n");
     BEGIN(INITIAL);
     EndNameList();
 }
@@ -140,7 +141,7 @@ LENDCOMMENT     "!"{NEOL}*
     if (e != NULL) {
         *e = '\0';
     }
-    //fprintf(stderr,"  ARRAYVARIABLE: %s\n", yytext);
+    if (verbose) fprintf(stderr,"  ARRAYVARIABLE: %s\n", yytext);
 
     ReadVariable(yytext);
 }
@@ -158,13 +159,13 @@ LENDCOMMENT     "!"{NEOL}*
     if (e != NULL) {
         *e = '\0';
     }
-    //fprintf(stderr,"  VARIABLE: %s\n", yytext);
+    if (verbose) fprintf(stderr,"  VARIABLE: %s\n", yytext);
 
     ReadVariable(yytext);
 }
 
 {NACAAIRFOIL} {
-    //fprintf(stderr,"AIRFOIL: %s\n", yytext);
+    if (verbose) fprintf(stderr,"AIRFOIL: %s\n", yytext);
     NACARead(yytext);
 }
 
