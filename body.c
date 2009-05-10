@@ -8,8 +8,8 @@
 #include "modeler.h"
 #include "modeler_proto.h"
 
-
 #ifdef STANDALONE
+int verbose=3;
 header(int verts, FILE *ofp)
 {
  fprintf(ofp,"AC3Db\nMATERIAL \"ac3dmat1\" rgb 0.5 1 0.2  amb 0.5 1.0 0.2  emis 0 0 0  spec 0 0 0  shi 10  trans 0\nOBJECT world\n");
@@ -41,6 +41,8 @@ header(points, stdout);
 	GetRib(S, 0., 1., 1., 0, 0, 0, points, stdout);
 footer(points, stdout);
 }
+#else
+extern int verbose;
 #endif
 
 RIB3D *GetRib(double S, double P, double YR, double ZR, double XC, double YC, double ZC, int points, FILE *ofp)
@@ -54,7 +56,7 @@ RIB3D *GetRib(double S, double P, double YR, double ZR, double XC, double YC, do
 	else s_norm = 0.;
 
 	if (s_norm > 4.0)
-		fprintf(stderr,"Detected area (S) greater than physically possible.  Width = %0.3f, Height = %0.3f, Area %0.3f\n",
+		if(verbose > 0) fprintf(stderr,"Detected area (S) greater than physically possible.  Width = %0.3f, Height = %0.3f, Area %0.3f\n",
 		YR*2., ZR*2., S);
 	if( s_norm > 3.14 ) /* interpolate towards a square shape */
 	{
@@ -109,3 +111,4 @@ RIB3D *GetRib(double S, double P, double YR, double ZR, double XC, double YC, do
 		
 	}
 }
+

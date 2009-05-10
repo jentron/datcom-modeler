@@ -94,7 +94,7 @@
 DIGIT           [0-9]
 ALPHA           [a-zA-Z]
 ALPHANUM        [A-Za-z0-9]
-ID              {ALPHA}+
+ID              [A-Z][A-Z0-9]*+
 WS              [ \t]
 EOL             "\n"|"\n\r"|"\r\n"
 NEOL            [^\n\r]
@@ -114,22 +114,22 @@ LENDCOMMENT     "!"{NEOL}*
 %%
 
 <namelist>{DOUBLE} {
-    if (verbose) fprintf(stderr,"    DOUBLE: %g\n", atof(yytext));
+    if (verbose > 2) fprintf(stderr,"    DOUBLE: %g\n", atof(yytext));
     ReadNumber(yytext);
 }
 
 <namelist>{BOOL} {
-    if (verbose) fprintf(stderr,"    BOOL: %s\n", yytext);
+    if (verbose > 2) fprintf(stderr,"    BOOL: %s\n", yytext);
 }
 
 <INITIAL>{NAMELIST} {
-    if (verbose) fprintf(stderr,"NAMELIST: %s\n", yytext);
+    if (verbose > 2) fprintf(stderr,"NAMELIST: %s\n", yytext);
     BEGIN(namelist);
     BeginNameList(yytext);
 }
 
 <namelist>"$" {
-    if (verbose) fprintf(stderr,"END OF NAMELIST\n");
+    if (verbose > 2) fprintf(stderr,"END OF NAMELIST\n");
     BEGIN(INITIAL);
     EndNameList();
 }
@@ -141,7 +141,7 @@ LENDCOMMENT     "!"{NEOL}*
     if (e != NULL) {
         *e = '\0';
     }
-    if (verbose) fprintf(stderr,"  ARRAYVARIABLE: %s\n", yytext);
+    if (verbose > 2) fprintf(stderr,"  ARRAYVARIABLE: %s\n", yytext);
 
     ReadVariable(yytext);
 }
@@ -159,13 +159,13 @@ LENDCOMMENT     "!"{NEOL}*
     if (e != NULL) {
         *e = '\0';
     }
-    if (verbose) fprintf(stderr,"  VARIABLE: %s\n", yytext);
+    if (verbose > 2) fprintf(stderr,"  VARIABLE: %s\n", yytext);
 
     ReadVariable(yytext);
 }
 
 {NACAAIRFOIL} {
-    if (verbose) fprintf(stderr,"AIRFOIL: %s\n", yytext);
+    if (verbose > 2) fprintf(stderr,"AIRFOIL: %s\n", yytext);
     NACARead(yytext);
 }
 
@@ -222,7 +222,7 @@ static void InitializeParser(AIRCRAFT* aircraft)
 
 static void Fail()
 {
-    fprintf(stderr, "Error: Unrecognized character '%s' close to line %d\n",
+    if (verbose > 0) fprintf(stderr, "Error: Unrecognized character '%s' close to line %d\n",
             yytext, line_number);
     exit(-1);
 }
@@ -231,7 +231,7 @@ static void BeginNameList(char* name)
 {
     int i;
     if (current_namelist != NL_NONE) {
-        fprintf(stderr,
+        if (verbose > 0) fprintf(stderr,
                 "datcom-parser: Unterminated NAMELIST close to line %d\n",
                 line_number);
         exit(-1);
@@ -247,7 +247,7 @@ static void BeginNameList(char* name)
 static void EndNameList()
 {
     if (current_namelist == NL_NONE) {
-        fprintf(stderr,
+        if (verbose > 0) fprintf(stderr,
                 "datcom-parser: Unbegun NAMELIST terminated close to line %d\n",
                 line_number);
         exit(-1);
@@ -259,7 +259,7 @@ static void ReadVariable(char* var)
 {
     switch (current_namelist) {
     case NL_NONE:
-        fputs("datcom-parser: Variable outside of NAMELIST", stderr);
+        if (verbose > 0) fputs("datcom-parser: Variable outside of NAMELIST", stderr);
         exit(-1);
         break;
     case NL_SYNTHS:
@@ -344,7 +344,7 @@ static void SYNTHSReadVariable(char* var)
         num_doubles = 0;
         next_int = &current_aircraft->synths.VERTUP;
     } else {
-        fprintf(stderr,
+       if (verbose > 1) fprintf(stderr,
                 "datcom-parser: Unknown variable %s in SYNTHS NAMELIST close to line %d\n",
                 var, line_number);
     }
@@ -394,7 +394,7 @@ static void BODYReadVariable(char* var)
         num_doubles = 0;
         next_int = &current_aircraft->body.METHOD;
     } else {
-        fprintf(stderr,
+        if (verbose > 1) fprintf(stderr,
                 "datcom-parser: Unknown variable %s in BODY NAMELIST close to line %d\n",
                 var, line_number);
     }
@@ -433,7 +433,7 @@ static void PLNFReadVariable(char* var, struct WGPLNF* surface)
         num_doubles = 0;
         next_int    = &surface->TYPE;
     } else {
-        fprintf(stderr,
+       if (verbose > 1) fprintf(stderr,
                 "datcom-parser: Unknown variable %s in PLNF NAMELIST around line %d\n",
                 var, line_number);
     }
@@ -458,7 +458,7 @@ static void SCHRReadVariable(char* var, DATCOM_AIRFOIL *airfoil)
         airfoil->YLOWER = calloc(num_doubles, sizeof(double));
         next_double = &airfoil->YLOWER[0];
     } else {
-        fprintf(stderr,
+       if (verbose > 1) fprintf(stderr,
                 "datcom-parser: Unknown variable %s in SCHR NAMELIST close to line %d\n",
                 var, line_number);
     } 
@@ -488,7 +488,7 @@ static void NACARead(char* str)
         strcpy(current_aircraft->vfinfoil.NACA_DESCR, str);
         break;
     default:
-        fprintf(stderr, "datcom-parser: Unknow surface in NACA airfoil %s close to line %d\n",
+       if (verbose > 1) fprintf(stderr, "datcom-parser: Unknow surface in NACA airfoil %s close to line %d\n",
                 str, line_number);
         break;
     }

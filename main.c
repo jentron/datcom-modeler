@@ -28,8 +28,15 @@
 #include <stdlib.h>
 #include "datcom-parser.h"
 
-int verbose=0; /* External to all other modules */
-
+int verbose=1; /* External to all other modules */
+/* Verbose Levels:
+ *
+ * 0. Quiet: No output on stderr
+ * 1. Default: Print errors
+ * 2. Chatty: Print interesting trivia
+ * 3. Verbose: Print everything
+ *
+ */
 int dofoils(DATCOM_AIRFOIL *datcomfoil, struct AIRFOIL *foil, char * defaultfoil);
 
 
@@ -40,7 +47,7 @@ void PrintAC(struct AIRCRAFT *ac)
 
 void Usage(char *name)
 {
-	fprintf(stderr, "Usage: %s [-n b|w|h|v|f] [-v] [-o ac-file] datcom-file\n", name);
+	fprintf(stderr, "Usage: %s [-n b|w|h|v|f] [-v[0-3]] [-o ac-file] datcom-file\n", name);
 }
 
 int main(int argc, char *argv[])
@@ -64,8 +71,7 @@ int main(int argc, char *argv[])
 	struct AIRFOIL vtailfoil;
 	struct AIRFOIL vfinfoil;
 
-	verbose = 0;
-	while ((opt = getopt(argc, argv, "n:o:v")) != -1)
+	while ((opt = getopt(argc, argv, "n:o:v::")) != -1)
 	{
 		switch (opt)
 		{
@@ -101,7 +107,8 @@ int main(int argc, char *argv[])
 				}
 				break;
 			case 'v':
-				verbose = 1;
+				if (optarg) verbose=atoi(optarg);
+				else verbose = 2;
 				break;
 			default: /* '?' */
 				Usage(argv[0]);

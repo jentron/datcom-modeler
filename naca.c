@@ -34,6 +34,7 @@
 void naca4digit(double m, double p, double t, struct AIRFOIL *airfoil);
 
 #ifdef STANDALONE
+int verbose = 3;
 int main(int argc, char *argv[])
 {
 	struct AIRFOIL airfoil;
@@ -47,6 +48,8 @@ int main(int argc, char *argv[])
 		fprintf(stdout, "%0.4f\t%0.4f\n", airfoil.DATAX[i], airfoil.DATAY[i]);
 	}
 }
+#else
+extern int verbose;
 #endif
 
 int NacaFoil(char *name, struct AIRFOIL *foil)
@@ -71,13 +74,13 @@ int NacaFoil(char *name, struct AIRFOIL *foil)
 	switch (name[7])
 	{
 	 case '1':
-fprintf(stderr,"%s CASE 1\n", name);
+if(verbose > 1 )fprintf(stderr,"%s CASE 1\n", name);
 	 break;
 
 	 case '4':
 		foo = &name[9];
 		i = atoi(foo);
-fprintf(stderr,"%s CASE 5: %d\n", name, i);
+if(verbose > 1 )fprintf(stderr,"%s CASE 5: %d\n", name, i);
 		m = i/1000;
 		i -= m*1000;
 		m *= 0.01;
@@ -93,7 +96,7 @@ fprintf(stderr,"%s CASE 5: %d\n", name, i);
 	 case '5':  /* Using Naca 4 series math */
 		foo = &name[9];
 		i = atoi(foo);
-fprintf(stderr,"%s CASE 5: %d ", name, i);
+if(verbose > 1 )fprintf(stderr,"%s CASE 5: %d ", name, i);
 		m = i/10000;
 		i -= m*10000;
 		m *= 0.01;
@@ -103,19 +106,19 @@ fprintf(stderr,"%s CASE 5: %d ", name, i);
 		p *= 0.005;
 
 		t = (double)i * 0.01;
-fprintf(stderr," m = %0.2f, p = %0.2f, t = %0.2f\n", m, p, t);
+if(verbose > 1 )fprintf(stderr," m = %0.2f, p = %0.2f, t = %0.2f\n", m, p, t);
 	 break;
 
 	 case '6':
-fprintf(stderr,"%s CASE 6\n", name);
+if(verbose > 1 )fprintf(stderr,"%s CASE 6\n", name);
 	 break;
 
 	 case 'S':
-fprintf(stderr,"%s CASE S\n", name);
+if(verbose > 1 )fprintf(stderr,"%s CASE S\n", name);
 	 break;
 
 	 default:
-fprintf(stderr,"%s Unknown airfoil\n", name);
+if(verbose > 0 )fprintf(stderr,"%s Unknown airfoil\n", name);
 	}
 
 
