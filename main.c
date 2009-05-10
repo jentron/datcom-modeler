@@ -33,7 +33,7 @@ int verbose=1; /* External to all other modules */
  *
  * 0. Quiet: No output on stderr
  * 1. Default: Print errors
- * 2. Chatty: Print interesting trivia
+ * 2. Chatty: Print interesting trivia, warnings
  * 3. Verbose: Print everything
  *
  */
@@ -47,7 +47,7 @@ void PrintAC(struct AIRCRAFT *ac)
 
 void Usage(char *name)
 {
-	fprintf(stderr, "Usage: %s [-n b|w|h|v|f] [-v[0-3]] [-o ac-file] datcom-file\n", name);
+	fprintf(stderr, "Usage: %s [-n b|e|f|h|v|w] [-v] [-q] [-o ac-file] datcom-file\n", name);
 }
 
 int main(int argc, char *argv[])
@@ -60,18 +60,20 @@ int main(int argc, char *argv[])
 	int vtail=1;
 	int vfin=1;
 	int body=1;
+	int engines=1;
 	int opt;
 	FILE *ofp = stdout;
 
 
 /* internal variables */
 	int objects = 0;
+	int propellers = 0;
 	struct AIRFOIL wingfoil;
 	struct AIRFOIL htailfoil;
 	struct AIRFOIL vtailfoil;
 	struct AIRFOIL vfinfoil;
 
-	while ((opt = getopt(argc, argv, "n:o:v::")) != -1)
+	while ((opt = getopt(argc, argv, "n:o:qv")) != -1)
 	{
 		switch (opt)
 		{
@@ -81,8 +83,11 @@ int main(int argc, char *argv[])
 					case 'b':
 						body=0;
 						break;
-					case 'w':
-						wing=0;
+					case 'e':
+						engines = 0;
+						break;
+					case 'f':
+						vfin = 0;
 						break;
 					case 'h':
 						htail=0;
@@ -90,8 +95,8 @@ int main(int argc, char *argv[])
 					case 'v':
 						vtail=0;
 						break;
-					case 'f':
-						vfin = 0;
+					case 'w':
+						wing=0;
 						break;
 					default:
 						Usage(argv[0]);
@@ -107,8 +112,10 @@ int main(int argc, char *argv[])
 				}
 				break;
 			case 'v':
-				if (optarg) verbose=atoi(optarg);
-				else verbose = 2;
+				verbose++;
+				break;
+			case 'q':
+				verbose = 0;
 				break;
 			default: /* '?' */
 				Usage(argv[0]);
@@ -150,12 +157,20 @@ int main(int argc, char *argv[])
 	if (body) body=ac.body.NX > 0. ? 1 : 0;
 	if (body) objects +=1;
 
+/* Process Engines */
+	if (engines)
+	{
+		propellers=ac.propwr.NENGSP;
+		objects += propellers;
+	}
+
       InitAC(ofp, objects );
       if (wing) WriteWing(ofp, &ac.wing, &wingfoil, "Wing", ac.synths.XW, ac.synths.ZW);
       if (htail) WriteWing(ofp, &ac.htail, &htailfoil, "H-Tail", ac.synths.XH, ac.synths.ZH);
       if (vtail) WriteFin(ofp, &ac.vtail, &vtailfoil, "V-Tail", ac.synths.XV, ac.synths.ZV);
       if (vfin) WriteFin(ofp, &ac.vfin, &vfinfoil, "V-Fin", ac.synths.XVF, ac.synths.ZVF);
       if (body) WriteBody(ofp, &ac.body, &ac.synths);
+      if (propellers) WritePropellers(ofp, &ac.propwr);
     return(0);
 }
 

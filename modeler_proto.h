@@ -1,10 +1,10 @@
 /*
  *=============================================================================
- *  
+ *
  *
  *  Copyright (C) 2009  Anders Gidenstam (anders(at)gidenstam.org)
  *  Copyright (C) 2009  Ronald Jensen    (ron(at)jentronics.com)
- *  http://www.gidenstam.org 
+ *  http://www.gidenstam.org
  *  http://www.jentronics.com
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -30,6 +30,7 @@ int InitAC(FILE *ofp, int kids);
 int WriteBody(FILE *ofp, struct BODY *body, struct SYNTHS *synths);
 int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *name, double X, double Z);
 int WriteFin(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *name, double X, double Z);
+int WritePropellers(FILE *ofp, struct PROPWR *propwr);
 
 /* Functions in naca.c */
 int NacaFoil(char *name, struct AIRFOIL *foil);
@@ -37,7 +38,7 @@ int NacaFoil(char *name, struct AIRFOIL *foil);
 
 /* Functions in body.c */
 /******
- * 
+ *
  * S = Area of rib,  P = Perimiter of rib
  * XR = X Radius, ZR = Z Radius
  * XC = X Center,  ZC = Z Center

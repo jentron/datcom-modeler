@@ -44,7 +44,8 @@
     #define NL_HTSCHR  9
     #define NL_VTSCHR  10
     #define NL_VFSCHR  11
-    #define NL_MAX     12 /* Keep this entry last! */
+    #define NL_PROPWR  12
+    #define NL_MAX     13 /* Keep this entry last! */
 
     static int line_number;
 
@@ -67,6 +68,7 @@
                                        "$HTSCHR",
                                        "$VTSCHR",
                                        "$VFSCHR",
+                                       "$PROPWR",
                                    };
 
     /* Internal functions. */
@@ -81,6 +83,7 @@
     static void BODYReadVariable(char* var);
     static void PLNFReadVariable(char* var, struct WGPLNF* surface);
     static void SCHRReadVariable(char* var, DATCOM_AIRFOIL* airfoil);
+    static void PROPWRReadVariable(char* var);
 
     static void NACARead(char* str);
 %}
@@ -94,7 +97,7 @@
 DIGIT           [0-9]
 ALPHA           [a-zA-Z]
 ALPHANUM        [A-Za-z0-9]
-ID              [A-Z][A-Z0-9]*+
+ID              [A-Z][A-Z0-9]*
 WS              [ \t]
 EOL             "\n"|"\n\r"|"\r\n"
 NEOL            [^\n\r]
@@ -292,6 +295,9 @@ static void ReadVariable(char* var)
     case NL_VFSCHR:
         SCHRReadVariable(var, &current_aircraft->vfinfoil);
         break;
+    case NL_PROPWR:
+        PROPWRReadVariable(var);
+        break;
     default:
         break;
     }
@@ -305,6 +311,42 @@ static void ReadNumber(char* str)
     } else if (next_int) {
         *next_int = (int)atof(yytext); /* Add error detection here! */
         next_int = NULL;
+    }
+}
+static void PROPWRReadVariable(char* var)
+{
+    num_doubles = 1;
+    if (strcmp(var, "AIETLP") == 0) {
+        next_double = &current_aircraft->propwr.AIETLP;
+    } else if (strcmp(var, "NENGSP") == 0) {
+        next_double = &current_aircraft->propwr.NENGSP;
+    } else if (strcmp(var, "THSTCP") == 0) {
+        next_double = &current_aircraft->propwr.THSTCP;
+    } else if (strcmp(var, "PHALOC") == 0) {
+        next_double = &current_aircraft->propwr.PHALOC;
+    } else if (strcmp(var, "PHVLOC") == 0) {
+        next_double = &current_aircraft->propwr.PHVLOC;
+    } else if (strcmp(var, "PRPRAD") == 0) {
+        next_double = &current_aircraft->propwr.PRPRAD;
+    } else if (strcmp(var, "BWAPR3") == 0) {
+        next_double = &current_aircraft->propwr.BWAPR3;
+    } else if (strcmp(var, "BWAPR6") == 0) {
+        next_double = &current_aircraft->propwr.BWAPR6;
+    } else if (strcmp(var, "BWAPR9") == 0) {
+        next_double = &current_aircraft->propwr.BWAPR9;
+    } else if (strcmp(var, "NOPBPE") == 0) {
+        next_double = &current_aircraft->propwr.NOPBPE;
+    } else if (strcmp(var, "BAPR75") == 0) {
+        next_double = &current_aircraft->propwr.BAPR75;
+    } else if (strcmp(var, "YP") == 0) {
+        next_double = &current_aircraft->propwr.YP;
+    } else if (strcmp(var, "CROT") == 0) {
+        num_doubles = 0;
+        next_int = &current_aircraft->propwr.CROT;
+    } else {
+       if (verbose > 1) fprintf(stderr,
+                "datcom-parser: Unknown variable %s in PROPWR NAMELIST close to line %d\n",
+                var, line_number);
     }
 }
 

@@ -40,6 +40,26 @@ int InitAC(FILE *ofp, int kids)
 	fprintf(ofp,"OBJECT world\nkids %d\n", kids);
 
 }
+
+int WritePropellers(FILE *ofp, struct PROPWR *propwr)
+{
+	int i, j;
+	double Y = propwr->YP;
+	for(i=0;i < propwr->NENGSP; i++)
+	{
+         fprintf(ofp,"OBJECT polyline\nname \"Prop %d\"\ncrease 89.0\nnumvert %d\n", i+1, 32);
+	     GetRib(propwr->PRPRAD*propwr->PRPRAD*3.14159, propwr->PRPRAD*3.2832, propwr->PRPRAD, propwr->PRPRAD, propwr->PHALOC, Y, propwr->PHVLOC, 32, ofp);
+		 fprintf(ofp,"numsurf 1\nSURF 0x31\nmat 0\nrefs %d\n", 32);
+		 for (j = 31; j>=0;j--)
+		 {
+		    fprintf(ofp,"%d 0 0\n", j);
+		 }
+		 fprintf(ofp,"kids 0\n");
+		 Y *= -1;
+	 }
+}
+
+
 int WriteBody(FILE *ofp, struct BODY *body, struct SYNTHS *synths)
 {
 	int i, j, points=32;
@@ -79,13 +99,13 @@ int WriteBody(FILE *ofp, struct BODY *body, struct SYNTHS *synths)
   {
         for(i=0; i < body->NX; i++)
         {
-		if(z) body->S[i] = body->R[i]*((body->ZU[i]-body->ZL[i])/2)*3.14159; 
+		if(z) body->S[i] = body->R[i]*((body->ZU[i]-body->ZL[i])/2)*3.14159;
 		else body->S[i] = body->R[i]*body->R[i]*3.14159 ;
         }
 
   }
 /* then we might be able to make use of it */
-        fprintf(ofp,"OBJECT poly\nname \"Body\"\ncrease 89.0\nnumvert %d\n", body->NX * points); // 
+        fprintf(ofp,"OBJECT poly\nname \"Body\"\ncrease 89.0\nnumvert %d\n", body->NX * points); //
    if( z )
    {
 	for(i=0; i < body->NX; i++)
@@ -137,7 +157,7 @@ int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *nam
 		offset_z[0]=Z;
 		offset_z[1]=Z + sin(wing->DHDADI * 0.017453293) * (wing->SSPN - wing->SSPNE);
 		offset_z[2]=Z + sin(wing->DHDADI * 0.017453293) * (wing->SSPN -wing->SSPNOP);
-		offset_z[3]=Z + sin(wing->DHDADI * 0.017453293) * (wing->SSPN -wing->SSPNOP) 
+		offset_z[3]=Z + sin(wing->DHDADI * 0.017453293) * (wing->SSPN -wing->SSPNOP)
                               + sin(wing->DHDADO * 0.017453293) * (wing->SSPNOP) ;
 	} else {
 		ribs=3;
@@ -161,14 +181,14 @@ int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *nam
 	{
 		for (i=0;i<airfoil->COUNT;i++)
 		{
-			fprintf(ofp,"%f %f %f\n", 
-				offset_x[current_rib] + ((airfoil->DATAX[i] - wing->CHSTAT) * chord[current_rib]), 
+			fprintf(ofp,"%f %f %f\n",
+				offset_x[current_rib] + ((airfoil->DATAX[i] - wing->CHSTAT) * chord[current_rib]),
 				offset_z[current_rib] + (airfoil->DATAY[i] * chord[current_rib]),
 				span[current_rib]);
 		}
 	}
 
-	fprintf(ofp,"numsurf %d\n", airfoil->COUNT * 2 * sections + airfoil->COUNT - 2); 
+	fprintf(ofp,"numsurf %d\n", airfoil->COUNT * 2 * sections + airfoil->COUNT - 2);
 	for(current_section=0;current_section<sections;current_section++)
 	{
 		tubesurface(ofp, current_section * airfoil->COUNT, (current_section + 1) * airfoil->COUNT , airfoil->COUNT, 0x30, current_section);
@@ -182,15 +202,15 @@ int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *nam
 	{
 		for (i=0;i<airfoil->COUNT;i++)
 		{
-			fprintf(ofp,"%f %f %f\n", 
-				offset_x[current_rib] + ((airfoil->DATAX[i] - wing->CHSTAT) * chord[current_rib]), 
-				offset_z[current_rib] + (airfoil->DATAY[i] * chord[current_rib]), 
+			fprintf(ofp,"%f %f %f\n",
+				offset_x[current_rib] + ((airfoil->DATAX[i] - wing->CHSTAT) * chord[current_rib]),
+				offset_z[current_rib] + (airfoil->DATAY[i] * chord[current_rib]),
 				-span[current_rib]);
 		}
 	}
 
 
-	fprintf(ofp,"numsurf %d\n", airfoil->COUNT * 2 * sections + airfoil->COUNT - 2); 
+	fprintf(ofp,"numsurf %d\n", airfoil->COUNT * 2 * sections + airfoil->COUNT - 2);
 	for(current_section=0;current_section<sections;current_section++)
 	{
 		tubesurface(ofp, (current_section + 1) * airfoil->COUNT, (current_section ) * airfoil->COUNT , airfoil->COUNT, 0x30, current_section);
@@ -226,7 +246,7 @@ int WriteFin(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *name
 		offset_z[0]=Z;
 		offset_z[1]=Z;
 		offset_z[2]=Z + tan(wing->DHDADI * 0.017453293) * (wing->SSPNE-wing->SSPNOP);
-		offset_z[3]=Z + tan(wing->DHDADI * 0.017453293) * (wing->SSPNE-wing->SSPNOP) 
+		offset_z[3]=Z + tan(wing->DHDADI * 0.017453293) * (wing->SSPNE-wing->SSPNOP)
                               + tan(wing->DHDADO * 0.017453293) * (wing->SSPNOP) ;
 	} else {
 		ribs=3;
@@ -250,14 +270,14 @@ int WriteFin(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *name
 	{
 		for (i=0;i<airfoil->COUNT;i++)
 		{
-			fprintf(ofp,"%f %f %f\n", 
-				offset_x[current_rib] + ((airfoil->DATAX[i] - wing->CHSTAT) * chord[current_rib]), 
+			fprintf(ofp,"%f %f %f\n",
+				offset_x[current_rib] + ((airfoil->DATAX[i] - wing->CHSTAT) * chord[current_rib]),
 				offset_z[current_rib] + span[current_rib],
 				(airfoil->DATAY[i] * chord[current_rib]));
 		}
 	}
 
-	fprintf(ofp,"numsurf %d\n", airfoil->COUNT * 2 * sections + airfoil->COUNT - 2); 
+	fprintf(ofp,"numsurf %d\n", airfoil->COUNT * 2 * sections + airfoil->COUNT - 2);
 	for(current_section=0;current_section<sections;current_section++)
 	{
 		tubesurface(ofp, (current_section + 1) * airfoil->COUNT, (current_section) * airfoil->COUNT , airfoil->COUNT, 0x30, current_section);
@@ -276,8 +296,8 @@ int tubesurface(FILE *ofp, int a, int b, int count, int type, int color)
 	int i;
 	for(i=0;i<count;i++)
 	{
-		fprintf(ofp, "SURF 0x%02x\nmat %d\nrefs 3\n%d 0 0\n%d 0 0\n%d 0 0\n", type, color, a+i, b+i, a+(i+1)%count); 
-		fprintf(ofp, "SURF 0x%02x\nmat %d\nrefs 3\n%d 0 0\n%d 0 0\n%d 0 0\n", type, color, b+i, b+(i+1)%count, a+(i+1)%count); 
+		fprintf(ofp, "SURF 0x%02x\nmat %d\nrefs 3\n%d 0 0\n%d 0 0\n%d 0 0\n", type, color, a+i, b+i, a+(i+1)%count);
+		fprintf(ofp, "SURF 0x%02x\nmat %d\nrefs 3\n%d 0 0\n%d 0 0\n%d 0 0\n", type, color, b+i, b+(i+1)%count, a+(i+1)%count);
 	}
 }
 

@@ -1,7 +1,7 @@
 /* modeler.h */
 /*
  *=============================================================================
- *  
+ *
  *
  *  Copyright (C) 2009  Anders Gidenstam (anders(at)gidenstam.org)
  *  Copyright (C) 2009  Ronald Jensen    (ron(at)jentronics.com)
@@ -50,7 +50,7 @@ struct BODY {
   double S[20];   /* Array(20) Cross sectional area at station. See note above. */
   double P[20];   /* Array(20) Periphery at station Xi. See note above. */
   double R[20];   /* Array(20) Planform half width at station Xi. See note above. */
-  double ZU[20];  /* Array(20) Z-coordinate at upper body surface at station Xi 
+  double ZU[20];  /* Array(20) Z-coordinate at upper body surface at station Xi
                    *           (positive when above centerline)
                    *           [Only required for subsonic asymmetric bodies] */
   double ZL[20];  /* Array(20) Z-coordinate at lower body surface at station Xi
@@ -117,7 +117,19 @@ struct JETPWR{
 
 /* Propeller Power Parameters */
 struct PROPWR{
-  char pad[4];
+  double AIETLP, /* Angle of incidence of engine thrust axis */
+         NENGSP, /* Number of engines 1 or 2 */
+         THSTCP, /* Thrust Coefficient */
+         PHALOC, /* Axial (X) location of propeller hub */
+         PHVLOC, /* Vertical (Z) location of propeller hub */
+         PRPRAD, /* Propeller radius */
+         BWAPR3, /* Blade width at 0.3 radius */
+         BWAPR6, /* Blade width at 0.6 radius */
+         BWAPR9, /* Blade width at 0.9 radius */
+         NOPBPE, /* Number of propeller blades per engine */
+         BAPR75, /* Blade angle at 0.75 radius */
+         YP;     /* Lateral (Y) location of engine */
+  int    CROT;   /* True = counter rotating propeller */
 } ;
 
 /* Twin Vertical Panels */
@@ -130,7 +142,7 @@ struct TVTPAN{
  *
  * This structure contains data
  * calculated from the input NACA
- * number or airfoil geometric data. 
+ * number or airfoil geometric data.
  *
  *************************/
 struct AIRFOIL{
