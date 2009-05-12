@@ -1,0 +1,31 @@
+./ A Man Page For datcom-modeler
+.TH datcom-modeler 1 "May 2009" "Jentronics.com" "Aeronautics" "GPL Aeronautics"
+.SH NAME
+datcom-modeler - generate 3d model based on datcom-input
+
+.SH SYNOPSIS
+datcom-modeler [-n b|e|f|h|v|w] [-v] [-q] [-o ac-file] datcom-file
+
+.SH DESCRIPTION
+Read a DATCOM or DATCOM+ input file and generate an ac3d format 3d
+model based on input characteristics.
+
+   -nb     do not generate a body
+   -ne     do not generate engines
+   -nf     do not generate ventral fin
+   -nh     do not generate horizontal tail
+   -nv     do not generate vertical tail
+   -nw     do not generate wings
+
+   -q      quiet, don't produce any output on stderr.
+   -v      verbose, produce more output on stderr.
+   -v -v   very verbose, flood stderr with messages.
+ 
+   -o ac-file If a file isn't supplied the file will be written to stdout
+
+.SH AUTHOR
+       Written by Ronald Jensen and Anders Gidenstam.
+
+.SH REPORTING BUGS
+       Report bugs to <wino(at)jentronics.com>.
+
