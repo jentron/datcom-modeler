@@ -19,6 +19,10 @@ datcom-parser.o: datcom-parser.h modeler.h datcom-parser.c
 datcomfoil.o: datcom-parser.h modeler.h datcomfoil.c
 	$(CC) $(CFLAGS) datcomfoil.c -c -o $@
 
+
+matrix.o: matrix.c matrix.h
+	$(CC) $(CFLAGS) matrix.c -c -o $@ 
+
 datcom-parser.c: datcom.flex
 	flex -o $@ datcom.flex
 
@@ -30,3 +34,5 @@ naca: naca.c
 body: body.c
 	$(CC) $(CFLAGS) body.c -DSTANDALONE -o $@ -lm
  
+matrixtest: matrix.o matrixtest.c
+	$(CC) $(CFLAGS) matrixtest.c matrix.o -DSTANDALONE -o $@ -lm

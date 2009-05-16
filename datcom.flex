@@ -172,7 +172,9 @@ LENDCOMMENT     "!"{NEOL}*
     NACARead(yytext);
 }
 
-{COMMAND}{NEOL}*
+{COMMAND}{NEOL}* {
+	if (verbose > 2) fprintf(stderr,"Command: %s\n", yytext);
+}
     /* Drop uninteresting commands */
 
 {LINECOMMENT}

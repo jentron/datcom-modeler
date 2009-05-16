@@ -44,7 +44,7 @@ footer(points, stdout);
 #else
 extern int verbose;
 #endif
-
+/* S=Area, Perimeter, Y_Radius, Z_Radius, X_Center, Y_Center, Z_Center, Number of Points, File Pointer */
 RIB3D *GetRib(double S, double P, double YR, double ZR, double XC, double YC, double ZC, int points, FILE *ofp)
 {
 	double d,f=1.0,theta=0.0,step,s_norm, area;
@@ -108,7 +108,16 @@ RIB3D *GetRib(double S, double P, double YR, double ZR, double XC, double YC, do
 			f = (( ROOT2/-( 2 * cos(0.75*pi-theta)) ) - 1) * d  + 1;
 			fprintf(ofp,"%f %f %f\n", XC, cos(theta)*f*ZR+ZC, sin(theta)*f*YR+YC);
 		}
-		
+
 	}
+}
+
+/* Radius, X_Center, Y_Center, Z_Center, X_Rotate, Y_Rotate, Z_rotate, Number of Points, File Pointer */
+
+RIB3D *GetRibCircle(double R, double XC, double YC, double ZC, double Xrot, double Yrot, double Zrot, int points, FILE *ofp)
+{
+	int i,j;
+	double theta, step;
+	double omatrix[4][4], xmatrix[4][4], ymatrix[4][4], zmatrix[4][4], fmatrix[4][4];
 }
 
