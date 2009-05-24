@@ -26,6 +26,7 @@
 #include <math.h>
 
 #include "modeler.h"
+extern int verbose;
 
 int tubesurface(FILE *ofp, int a, int b, int count, int type, int color);
 int skinsurface(FILE *ofp, int a, int count, int type, int color, int reverse);
@@ -63,7 +64,7 @@ int WritePropellers(FILE *ofp, struct PROPWR *propwr)
 int WriteBody(FILE *ofp, struct BODY *body, struct SYNTHS *synths)
 {
 	int i, j, points=32;
-	double ZR, ZC;
+	double XR, ZR, ZC;
 	double p=0,r=0,s=0,z=0;
 	int good=0;
 /* first we look at the data structure too see what information we've been provided */
@@ -90,7 +91,7 @@ int WriteBody(FILE *ofp, struct BODY *body, struct SYNTHS *synths)
 	}
 	good=1;
   } else {
-	fprintf(stderr,"Not enough data found to draw a body, sorry. P=%d, R=%d, S=%d, Z=%d\n", p, r, s, z);
+	if (verbose > 0) fprintf(stderr,"Not enough data found to draw a body, sorry. P=%d, R=%d, S=%d, Z=%d\n", p, r, s, z);
 	return 0; //not enough data to proceed
   }
 
@@ -104,6 +105,35 @@ int WriteBody(FILE *ofp, struct BODY *body, struct SYNTHS *synths)
         }
 
   }
+
+/* Suggest "P" if needed */
+/* We interpolate between the circumfrence of a diamond and the
+   circumference of a square based on the area */
+	if( s && !p )
+	{
+		if (verbose > 0) fprintf(stderr,"If S(1) is given, P(1) is generally required by DATCOM for $BODY\n");
+		if (verbose > 1)
+		{
+			fprintf(stderr,"* Perimeter estimation follows:\n P(1) = ");
+			for(i=0; i < body->NX; i++)
+			{
+				if(z) ZR = (body->ZU[i]-body->ZL[i])/2;
+				else ZR = body->R[i];
+				XR = body->R[i];
+				double ref = (body->S[i] / (ZR * XR)-2)/2;
+				ref=pow(ref, 0.5);
+				double s_area = 4.0 * (XR + ZR);
+				double d_area = 4.0 * pow( (XR * XR + ZR * ZR), 0.5);
+				double area = s_area * ref + d_area * (1.0 - ref);
+				fprintf(stderr,"%0.3f, ", area);
+			}
+			fprintf(stderr,"\n");
+		}
+	}
+
+
+
+
 /* then we might be able to make use of it */
         fprintf(ofp,"OBJECT poly\nname \"Body\"\ncrease 89.0\nnumvert %d\n", body->NX * points); //
    if( z )
