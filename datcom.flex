@@ -54,6 +54,7 @@
     static int     num_doubles;
 
     static int*    next_int;
+    static int*    next_bool;
 
     static const char* NL_NAME[] = {
                                        "",
@@ -123,6 +124,7 @@ LENDCOMMENT     "!"{NEOL}*
 
 <namelist>{BOOL} {
     if (verbose > 2) fprintf(stderr,"    BOOL: %s\n", yytext);
+    ReadNumber(yytext);
 }
 
 <INITIAL>{NAMELIST} {
@@ -313,8 +315,16 @@ static void ReadNumber(char* str)
     } else if (next_int) {
         *next_int = (int)atof(yytext); /* Add error detection here! */
         next_int = NULL;
+    } else if (next_bool) {
+        if (strcmp(yytext, ".TRUE.") == 0) {
+            *next_bool = 1;
+        } else {
+            *next_bool = 0;
+        }
+        next_bool=NULL;
     }
 }
+
 static void PROPWRReadVariable(char* var)
 {
     num_doubles = 1;
@@ -386,7 +396,8 @@ static void SYNTHSReadVariable(char* var)
         next_double = &current_aircraft->synths.HINAX;
     } else if (strcmp(var, "VERTUP") == 0) {
         num_doubles = 0;
-        next_int = &current_aircraft->synths.VERTUP;
+        next_int = NULL;
+        next_bool = &current_aircraft->synths.VERTUP;
     } else {
        if (verbose > 1) fprintf(stderr,
                 "datcom-parser: Unknown variable %s in SYNTHS NAMELIST close to line %d\n",

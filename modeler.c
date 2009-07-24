@@ -251,10 +251,13 @@ int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *nam
 	return(1);
 }
 
-int WriteFin(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *name, double X, double Z)
+int WriteFin(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *name, double X, double Z, int vertup)
 {
-	int i, ribs, sections, current_rib, current_section;
-	double chord[4],span[4], offset_x[4], offset_z[4];
+	int i, ribs, sections, current_rib, current_section, count;
+	double chord[4],span[4], offset_x[4], offset_z[4],sign=1.0;
+
+	if(!vertup) sign= -1.0;
+	if (verbose > 0) fprintf(stderr,"VERTUP is %d, sign is %0.1f\n", vertup, sign);
 
 	if(wing->SSPNOP > 0.0)
 	{
@@ -298,12 +301,24 @@ int WriteFin(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *name
 	fprintf(ofp,"OBJECT poly\nname \"Vertical %s\"\ncrease 45.0\nnumvert %d\n", name, airfoil->COUNT * ribs); // three or four based on type
 	for(current_rib=0;current_rib<ribs;current_rib++)
 	{
-		for (i=0;i<airfoil->COUNT;i++)
+		if(vertup)
 		{
-			fprintf(ofp,"%f %f %f\n",
-				offset_x[current_rib] + ((airfoil->DATAX[i] - wing->CHSTAT) * chord[current_rib]),
-				offset_z[current_rib] + span[current_rib],
-				(airfoil->DATAY[i] * chord[current_rib]));
+			for (i=0;i<airfoil->COUNT;i++)
+			{
+				fprintf(ofp,"%f %f %f\n",
+					offset_x[current_rib] + ((airfoil->DATAX[i] - wing->CHSTAT) * chord[current_rib]),
+					(offset_z[current_rib] + span[current_rib])*sign,
+					(airfoil->DATAY[i] * chord[current_rib]));
+			}
+		} else {
+			for (i=airfoil->COUNT-1;i>=0;i--)
+			{
+				fprintf(ofp,"%f %f %f\n",
+					offset_x[current_rib] + ((airfoil->DATAX[i] - wing->CHSTAT) * chord[current_rib]),
+					(offset_z[current_rib] + span[current_rib])*sign,
+					(airfoil->DATAY[i] * chord[current_rib]));
+			}
+
 		}
 	}
 
@@ -312,7 +327,7 @@ int WriteFin(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *name
 	{
 		tubesurface(ofp, (current_section + 1) * airfoil->COUNT, (current_section) * airfoil->COUNT , airfoil->COUNT, 0x30, current_section);
 	}
-	skinsurface(ofp, (sections)*airfoil->COUNT, airfoil->COUNT-1, 0x30, sections-1, 1);
+	skinsurface(ofp, (sections)*airfoil->COUNT, airfoil->COUNT-1, 0x30, sections-1, !vertup );
 
 	fprintf(ofp,"kids 0\n");
 

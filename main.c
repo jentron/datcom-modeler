@@ -167,8 +167,8 @@ int main(int argc, char *argv[])
       InitAC(ofp, objects );
       if (wing) WriteWing(ofp, &ac.wing, &wingfoil, "Wing", ac.synths.XW, ac.synths.ZW);
       if (htail) WriteWing(ofp, &ac.htail, &htailfoil, "H-Tail", ac.synths.XH, ac.synths.ZH);
-      if (vtail) WriteFin(ofp, &ac.vtail, &vtailfoil, "V-Tail", ac.synths.XV, ac.synths.ZV);
-      if (vfin) WriteFin(ofp, &ac.vfin, &vfinfoil, "V-Fin", ac.synths.XVF, ac.synths.ZVF);
+      if (vtail) WriteFin(ofp, &ac.vtail, &vtailfoil, "V-Tail", ac.synths.XV, ac.synths.ZV, 1);
+      if (vfin) WriteFin(ofp, &ac.vfin, &vfinfoil, "V-Fin", ac.synths.XVF, ac.synths.ZVF, ac.synths.VERTUP);
       if (body) WriteBody(ofp, &ac.body, &ac.synths);
       if (propellers) WritePropellers(ofp, &ac.propwr);
     return(0);
