@@ -80,7 +80,7 @@ if(verbose > 1 )fprintf(stderr,"%s CASE 1\n", name);
 	 case '4':
 		foo = &name[9];
 		i = atoi(foo);
-if(verbose > 1 )fprintf(stderr,"%s CASE 5: %d\n", name, i);
+if(verbose > 1 )fprintf(stderr,"%s CASE 4: %d\n", name, i);
 		m = i/1000;
 		i -= m*1000;
 		m *= 0.01;
@@ -123,7 +123,7 @@ if(verbose > 0 )fprintf(stderr,"%s Unknown airfoil\n", name);
 
 
 
-	naca4digit(m, p, t, foil); 
+	naca4digit(m, p, t, foil);
 }
 
 void naca4digit(double m, double p, double t, struct AIRFOIL *airfoil )
@@ -149,14 +149,14 @@ airfoil->COUNT = 2 * stations;
 		}
 		yt = (t/0.2)*(0.2969*xroot - 0.1260 * x[i] - 0.3516*x2 + 0.2843*x3 - 0.1015*x4);
 		airfoil->DATAX[i] = x[i];
-		airfoil->DATAY[i] = yc + yt; 
+		airfoil->DATAY[i] = yc + yt;
 		airfoil->DATAX[j] = x[i];
 		airfoil->DATAY[j] = yc - yt;
 
 /*
 theta = atan2(dyc,dx) ;
 Xu = x[i] - yt * sin(theta);
-Yu = yc + yt * cos (theta); 
+Yu = yc + yt * cos (theta);
 Xl = x[i] + yt * sin(theta);
 Yl = yc - yt * cos(theta);
 
