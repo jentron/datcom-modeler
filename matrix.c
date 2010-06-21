@@ -101,7 +101,7 @@ void matrix_multiply(Matrix4 *a, Matrix4 *b, Matrix4 *result)
 			result->element[i][j] = 0.0;
 			for(k=0;k<4;k++)
 			{
-				result->element[i][j] += a->element[i][k] * b->element[k][j];
+				result->element[i][j] += b->element[i][k] * a->element[k][j];
 			}
 		}
 	}
@@ -143,4 +143,13 @@ void matrix_print(Matrix4 *matrix)
 
 }
 
+void matrix_fprint(FILE *fp, Matrix4 *matrix)
+{
+        int i;
+        for(i=0;i<4;i++)
+        {
+                fprintf(fp, "% 0.4f, % 0.4f, % 0.4f, % 0.4f\n", matrix->element[i][0], matrix->element[i][1], matrix->element[i][2], matrix->element[i][3]);
+        }
+
+}
 

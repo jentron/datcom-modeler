@@ -34,6 +34,7 @@ void matrix_add(Matrix4 *a, Matrix4 *b, Matrix4 *result);
 
 /* print matrix */
 void matrix_print(Matrix4 *matrix);
+void matrix_fprint(FILE* fp, Matrix4 *matrix);
 
 void vector_multiply(Matrix4 *a, Vector4 *b, Vector4 *result);
 
