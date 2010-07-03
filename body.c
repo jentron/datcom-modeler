@@ -56,8 +56,8 @@ RIB3D *GetRib(double S, double P, double YR, double ZR, double XC, double YC, do
 	else s_norm = 0.;
 
 	if (s_norm > 4.0)
-		if(verbose > 0) fprintf(stderr,"Detected area (S) greater than physically possible.  Width = %0.3f, Height = %0.3f, Area %0.3f\n",
-		YR*2., ZR*2., S);
+		if(verbose > 0) fprintf(stderr,"Detected area (S) greater than physically possible.  Station = %0.3f, Width = %0.3f, Height = %0.3f, Area %0.3f > %0.3f\n",
+		XC, YR*2., ZR*2., S, YR*ZR*4.);
 	if( s_norm > 3.14 ) /* interpolate towards a square shape */
 	{
 		d = (s_norm-pi)/(4.0-pi);
