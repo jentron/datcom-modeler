@@ -87,6 +87,10 @@
     static void PROPWRReadVariable(char* var);
 
     static void NACARead(char* str);
+    /* Added by Bill Galbraith 10-13-10 */
+    static void ClearLineRead();
+    static void AppendToLineRead(char* str);
+    char LineRead[300];
 %}
 
 /* This tells flex to read only one input file */
@@ -102,7 +106,26 @@ ID              [A-Z][A-Z0-9]*
 WS              [ \t]
 EOL             "\n"|"\n\r"|"\r\n"
 NEOL            [^\n\r]
-DOUBLE          "-"?{DIGIT}*"."{DIGIT}*("E""-"?{DIGIT}+)?
+
+/* Bill Galbraith  10-12-10
+   Redefined what a DOUBLE was, to :
+      digit(s), a decimal point, and digit(s)
+      digit(s) and a decimal point
+      a decimal point and digit(s)
+   and of which may or may not have a leading minus sign and
+   trailing exponent, which is made up of an optional minus sign
+   and digit(s)
+   * IMPORTANT NOTE * The DOUBLE is also defined as ending with a comma.
+
+   Old definition
+DOUBLE          "-"?{DIGIT}*"."{DIGIT}*("E""-"?{DIGIT}+)?   */
+
+/* This works, except it doesn't account for not having
+   the numbers separated by commas. If you fix this, also have BOOLEAN
+   separated by commas.
+*/
+DOUBLE          ("-"?{DIGIT}+"."{DIGIT}+("E""-"?{DIGIT}+)?|"-"?{DIGIT}+"."("E""-"?{DIGIT}+)?|"-"?"."{DIGIT}+("E""-"?{DIGIT}+)?)
+
 BOOL            \.TRUE\.|\.FALSE\.
 COMMAND         ^(DIM|PART|DERIV|DUMP|DAMP|SAVE|NEXT|CASEID|BUILD|PLOT|TRIM)
 NAMELIST        "$"{ID}
@@ -118,29 +141,36 @@ LENDCOMMENT     "!"{NEOL}*
 %%
 
 <namelist>{DOUBLE} {
-    if (verbose > 2) fprintf(stderr,"    DOUBLE: %g\n", atof(yytext));
+    if (verbose > 2) fprintf(stderr,"    DOUBLE: %s = %g\n", yytext, atof(yytext));
+    /* Bill Galbraith 10-13-10  This is a more accurate output */
+    /* Ron Jensen 10-13-10 The conversion is done with atof() so perhaps both are interesting */
+    //fprintf(stderr,"    DOUBLE: %s\n", yytext);
     ReadNumber(yytext);
+    AppendToLineRead(yytext);
 }
 
 <namelist>{BOOL} {
     if (verbose > 2) fprintf(stderr,"    BOOL: %s\n", yytext);
-    ReadNumber(yytext);
+    AppendToLineRead(yytext);
 }
 
 <INITIAL>{NAMELIST} {
     if (verbose > 2) fprintf(stderr,"NAMELIST: %s\n", yytext);
     BEGIN(namelist);
     BeginNameList(yytext);
+    AppendToLineRead(yytext);
 }
 
 <namelist>"$" {
     if (verbose > 2) fprintf(stderr,"END OF NAMELIST\n");
     BEGIN(INITIAL);
     EndNameList();
+    AppendToLineRead(yytext);
 }
 
 <namelist>{ARRVAR} {
     char* e;
+    AppendToLineRead(yytext);
     /* Strip trailing garbage. I hope this is safe.. */
     e = strchr(yytext, '(');
     if (e != NULL) {
@@ -155,6 +185,7 @@ LENDCOMMENT     "!"{NEOL}*
     char* s;
     char* e;
 
+    AppendToLineRead(yytext);
     /* Strip trailing garbage. I hope this is safe.. */
     s = strchr(yytext, ' ');
     e = strchr(yytext, '=');
@@ -172,28 +203,40 @@ LENDCOMMENT     "!"{NEOL}*
 {NACAAIRFOIL} {
     if (verbose > 2) fprintf(stderr,"AIRFOIL: %s\n", yytext);
     NACARead(yytext);
+    ClearLineRead();
 }
 
 {COMMAND}{NEOL}* {
 	if (verbose > 2) fprintf(stderr,"Command: %s\n", yytext);
-}
+
     /* Drop uninteresting commands */
+    ClearLineRead();
+}
 
-{LINECOMMENT}
+{LINECOMMENT} {
     /* Drop comment lines */
+   ClearLineRead();
+}
 
-{LENDCOMMENT}
+{LENDCOMMENT} {
     /* Drop comment lines */
+    ClearLineRead();
+}
 
 {EOL} {
     line_number++;
+   ClearLineRead();
 }
 
-","
+"," {
     /* Eat ',' */
+    AppendToLineRead(yytext);
+}
 
-{WS}+
+{WS} {
     /* Eat up whitespace */
+    AppendToLineRead(yytext);
+}
 
 . {
     Fail();
@@ -216,7 +259,11 @@ void ReadDatcom(char* filename, AIRCRAFT* aircraft)
 
 static void InitializeParser(AIRCRAFT* aircraft)
 {
-    line_number = 0;
+    /* Bill Galbraith  10-12-10
+       Changed the initial value from 0 to 1, so that the line numbers
+       output actually matches that in the file. */
+    
+    line_number = 1;
 
     current_aircraft = aircraft;
     current_namelist = NL_NONE;
@@ -229,8 +276,9 @@ static void InitializeParser(AIRCRAFT* aircraft)
 
 static void Fail()
 {
-    if (verbose > 0) fprintf(stderr, "Error: Unrecognized character '%s' close to line %d\n",
+    if (verbose > 0) fprintf(stderr, "Error: Unrecognized or misplaced character '%s' in line %d\n",
             yytext, line_number);
+    fprintf(stderr, "Errant line up to the error is:\n%s", LineRead );
     exit(-1);
 }
 
@@ -239,7 +287,7 @@ static void BeginNameList(char* name)
     int i;
     if (current_namelist != NL_NONE) {
         if (verbose > 0) fprintf(stderr,
-                "datcom-parser: Unterminated NAMELIST close to line %d\n",
+               "datcom-parser: Unterminated NAMELIST in line %d\n",
                 line_number);
         exit(-1);
     }
@@ -255,7 +303,7 @@ static void EndNameList()
 {
     if (current_namelist == NL_NONE) {
         if (verbose > 0) fprintf(stderr,
-                "datcom-parser: Unbegun NAMELIST terminated close to line %d\n",
+                "datcom-parser: Unbegun NAMELIST terminated in line %d\n",
                 line_number);
         exit(-1);
     }
@@ -400,7 +448,7 @@ static void SYNTHSReadVariable(char* var)
         next_bool = &current_aircraft->synths.VERTUP;
     } else {
        if (verbose > 1) fprintf(stderr,
-                "datcom-parser: Unknown variable %s in SYNTHS NAMELIST close to line %d\n",
+                "datcom-parser: Unknown variable %s in SYNTHS NAMELIST in line %d\n",
                 var, line_number);
     }
 }
@@ -450,7 +498,7 @@ static void BODYReadVariable(char* var)
         next_int = &current_aircraft->body.METHOD;
     } else {
         if (verbose > 1) fprintf(stderr,
-                "datcom-parser: Unknown variable %s in BODY NAMELIST close to line %d\n",
+                "datcom-parser: Unknown variable %s in BODY NAMELIST in line %d\n",
                 var, line_number);
     }
 }
@@ -514,13 +562,14 @@ static void SCHRReadVariable(char* var, DATCOM_AIRFOIL *airfoil)
         next_double = &airfoil->YLOWER[0];
     } else {
        if (verbose > 1) fprintf(stderr,
-                "datcom-parser: Unknown variable %s in SCHR NAMELIST close to line %d\n",
+                "datcom-parser: Unknown variable %s in SCHR NAMELIST in line %d\n",
                 var, line_number);
     } 
 }
 
 static void NACARead(char* str)
 {
+    ClearLineRead();
     switch (str[5]) {
     case 'W':
         current_aircraft->wingfoil.NACA_DESCR =
@@ -543,8 +592,24 @@ static void NACARead(char* str)
         strcpy(current_aircraft->vfinfoil.NACA_DESCR, str);
         break;
     default:
-       if (verbose > 1) fprintf(stderr, "datcom-parser: Unknow surface in NACA airfoil %s close to line %d\n",
+       if (verbose > 1) fprintf(stderr, "datcom-parser: Unknow surface in NACA airfoil %s in line %d\n",
                 str, line_number);
         break;
+    }
+}
+
+static void ClearLineRead()
+{
+    strcpy( LineRead,"" );
+}
+
+static void AppendToLineRead(char* str)
+{
+    strcat( LineRead, str );
+    if ( strlen(LineRead) > 80 )
+    {
+       fprintf(stderr,"Line is too long at line %d. Keep it under 80 characters\n%s\n", 
+          line_number, LineRead );
+       exit(-1);
     }
 }
