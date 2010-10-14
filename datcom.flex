@@ -185,7 +185,6 @@ LENDCOMMENT     "!"{NEOL}*
     char* s;
     char* e;
 
-    AppendToLineRead(yytext);
     /* Strip trailing garbage. I hope this is safe.. */
     s = strchr(yytext, ' ');
     e = strchr(yytext, '=');
@@ -195,6 +194,7 @@ LENDCOMMENT     "!"{NEOL}*
     if (e != NULL) {
         *e = '\0';
     }
+    AppendToLineRead(yytext);
     if (verbose > 2) fprintf(stderr,"  VARIABLE: %s\n", yytext);
 
     ReadVariable(yytext);
@@ -235,7 +235,6 @@ LENDCOMMENT     "!"{NEOL}*
 
 {WS} {
     /* Eat up whitespace */
-    AppendToLineRead(yytext);
 }
 
 . {
@@ -278,7 +277,7 @@ static void Fail()
 {
     if (verbose > 0) fprintf(stderr, "Error: Unrecognized or misplaced character '%s' in line %d\n",
             yytext, line_number);
-    fprintf(stderr, "Errant line up to the error is:\n%s", LineRead );
+    fprintf(stderr, "Errant line up to the error is:\n%s\n", LineRead );
     exit(-1);
 }
 
@@ -610,6 +609,6 @@ static void AppendToLineRead(char* str)
     {
        fprintf(stderr,"Line is too long at line %d. Keep it under 80 characters\n%s\n", 
           line_number, LineRead );
-       exit(-1);
+//       exit(-1);
     }
 }
