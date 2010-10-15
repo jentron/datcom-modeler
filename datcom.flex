@@ -151,6 +151,7 @@ LENDCOMMENT     "!"{NEOL}*
 
 <namelist>{BOOL} {
     if (verbose > 2) fprintf(stderr,"    BOOL: %s\n", yytext);
+    ReadNumber(yytext);
     AppendToLineRead(yytext);
 }
 
