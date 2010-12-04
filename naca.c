@@ -40,7 +40,11 @@ int main(int argc, char *argv[])
 	struct AIRFOIL airfoil;
 	int i;
 
-	if (argc !=2) return -1;
+	if (argc !=2) 
+	{
+		fprintf(stderr,"USAGE: %s NACA-x-X-XXXX\n", argv[0]);
+		return -1;
+	}
 	NacaFoil(argv[1], &airfoil);
 
 	for(i=0;i<airfoil.COUNT;i++)
@@ -107,7 +111,6 @@ if(verbose > 1 )fprintf(stderr,"%s CASE 5: %d ", name, i);
 		p *= 0.005;
 
 		t = (double)i * 0.01;
-if(verbose > 1 )fprintf(stderr," m = %0.2f, p = %0.2f, t = %0.2f\n", m, p, t);
 	 break;
 
 	 case '6':
@@ -129,6 +132,7 @@ if(verbose > 0 )fprintf(stderr,"%s Unknown airfoil\n", name);
 	}
 
 
+if(verbose > 1 )fprintf(stderr," m = %0.2f, p = %0.2f, t = %0.2f\n", m, p, t);
 
 	naca4digit(m, p, t, foil);
 }
