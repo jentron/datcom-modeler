@@ -83,18 +83,19 @@ if(verbose > 1 )fprintf(stderr,"%s CASE 1\n", name);
 	 break;
 
 	 case '4':
-		foo = &name[9];
-		i = atoi(foo);
-if(verbose > 1 )fprintf(stderr,"%s CASE 4: %d\n", name, i);
-		m = i/1000;
-		i -= m*1000;
-		m *= 0.01;
+if(verbose > 1 )fprintf(stderr,"%s CASE 4:\n", name);
+		bar[0] = name[9];
+		bar[1] = 0;
+		m = atol(bar)/100.;
 
-		p = i/100;
-		i -= p*100;
-		p *= 0.1;
+		bar[0] = name[10];
+		bar[1] = 0;
+		p = atol(bar)/10.;
 
-		t = (double)i * 0.01;
+		bar[0] = name[11];
+		bar[1] = name[12];
+		bar[2] = 0;
+		t = atol(bar)/100.;
 
 	 break;
 
