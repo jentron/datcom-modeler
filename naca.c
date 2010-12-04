@@ -57,6 +57,7 @@ int NacaFoil(char *name, struct AIRFOIL *foil)
 	double m, p, t;
 	int i=16;
 	char *foo;
+	char bar[3];
 	if(strncmp("NACA", name, 4) )
 	{
 		return(0); //not a naca description
@@ -111,6 +112,12 @@ if(verbose > 1 )fprintf(stderr," m = %0.2f, p = %0.2f, t = %0.2f\n", m, p, t);
 
 	 case '6':
 if(verbose > 1 )fprintf(stderr,"%s CASE 6\n", name);
+		bar[0]=name[13];
+		bar[1]=name[14];
+		bar[2]=0;
+		t = atol(bar)/100.;
+if(verbose > 1 )fprintf(stderr,"thickness = %s%% = %0.2f\n", bar, t);
+
 	 break;
 
 	 case 'S':
