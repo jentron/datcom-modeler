@@ -33,7 +33,7 @@ int WriteFin(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *name
 int WritePropellers(FILE *ofp, struct PROPWR *propwr);
 
 /* Functions in naca.c */
-int NacaFoil(char *name, struct AIRFOIL *foil);
+int NacaFoil(char *name, struct AIRFOIL *foil, int stations);
 
 
 /* Functions in body.c */

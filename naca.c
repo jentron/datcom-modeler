@@ -31,7 +31,9 @@
 #include "modeler.h"
 #include "modeler_proto.h"
 
-void naca4digit(double m, double p, double t, struct AIRFOIL *airfoil);
+void naca4digit(double m, double p, double t, struct AIRFOIL *airfoil, int stations);
+double *TaperSeq(int s);
+
 
 #ifdef STANDALONE
 int verbose = 3;
@@ -39,6 +41,7 @@ int main(int argc, char *argv[])
 {
 	struct AIRFOIL airfoil;
 	int i;
+	int stations=20;
 	FILE *ofp=stdout;
 
 	if (argc !=2) 
@@ -46,7 +49,7 @@ int main(int argc, char *argv[])
 		fprintf(stderr,"USAGE: %s NACA-x-N-XXXX\n\t where N is the foil type and xxxx is the actual foil number", argv[0]);
 		return -1;
 	}
-	NacaFoil(argv[1], &airfoil);
+	NacaFoil(argv[1], &airfoil, stations);
 if(1) // set this to 0 to get raw points
 {
 	        fprintf(ofp,"AC3Db\n");
@@ -75,7 +78,7 @@ if(1) // set this to 0 to get raw points
 extern int verbose;
 #endif
 
-int NacaFoil(char *name, struct AIRFOIL *foil)
+int NacaFoil(char *name, struct AIRFOIL *foil, int stations)
 {
 	double m, p, t;
 	int i=16;
@@ -167,15 +170,16 @@ if(verbose > 0 )fprintf(stderr,"%s Unknown airfoil\n", name);
 
 if(verbose > 1 )fprintf(stderr," m = %0.2f, p = %0.2f, t = %0.2f\n", m, p, t);
 
-	naca4digit(m, p, t, foil);
+	naca4digit(m, p, t, foil, stations);
 }
 
-void naca4digit(double m, double p, double t, struct AIRFOIL *airfoil )
+void naca4digit(double m, double p, double t, struct AIRFOIL *airfoil, int stations )
 {
 	int i, j;
-	double yc, yt, x2, x3, x4, xroot, stations=10;
+	double yc, yt, x2, x3, x4, xroot;
 	double Xu, Yu, Xl, Yl,dx=0, dyc=0, oyc=0, theta;
-	double x[]={0.0,0.0125,0.05,0.1,0.15,0.2,0.3,0.5,0.7,1.0};
+	double *x;
+	x=TaperSeq(stations);
 
 airfoil->DATAX = malloc( 2 * stations * sizeof(double) );
 airfoil->DATAY = malloc( 2 * stations * sizeof(double) );
@@ -187,9 +191,9 @@ airfoil->COUNT = 2 * stations;
 		x4 = x3 * x[i];
 		xroot = sqrt(x[i]);
 		if(x[i] < p){
-			yc = (m / p * p) * (2*p*x[i] - x2);
+			yc = (m / (p * p)) * (2*p*x[i] - x2);
 		} else {
-			yc = ( m /  (1-p)*(1-p) ) * ( (1 -2*p)+2*p*x[i]-x2);
+			yc = ( m /  ((1-p)*(1-p)) ) * ( (1 -2*p)+2*p*x[i]-x2);
 		}
 		yt = (t/0.2)*(0.2969*xroot - 0.1260 * x[i] - 0.3516*x2 + 0.2843*x3 - 0.1015*x4);
 		airfoil->DATAX[i] = x[i];
@@ -215,5 +219,24 @@ Yl = yc - yt * cos(theta);
 */
 	}
 
+}
+
+double *TaperSeq(int s)
+{
+	double k, f;
+	int i;
+	double *seq;
+	seq=malloc(sizeof(double)*s);
+
+	if(!seq) return 0;
+
+	f=pow(2.,1./(double)(s-1));
+	k=1.;
+	for(i=0;i<s;i++)
+	{
+		seq[i]=(k-1.)*(k-1.);
+		k *= f;
+	}
+	return seq;
 }
 

@@ -1,10 +1,10 @@
 CFLAGS = -g
 OBJECTS = modeler.o datcom-parser.o datcomfoil.o naca.o body.o
 
-datcom-modeler: main.c $(OBJECTS)
+datcom-modeler: main.c $(OBJECTS) datcom-parser.h  matrix.h  modeler.h  modeler_proto.h
 	$(CC) $(CFLAGS) main.c $(OBJECTS) -o $@ -lm
 
-modeler.o: modeler.h modeler.c
+modeler.o: modeler.h modeler.c modeler_proto.h
 	$(CC) $(CFLAGS) modeler.c -c -o $@ 
 
 naca.o: naca.c modeler.h modeler_proto.h
@@ -28,7 +28,7 @@ datcom-parser.c: datcom.flex
 
 #below are stand-alone test programs.
 
-naca: naca.c
+naca: naca.c 
 	$(CC) $(CFLAGS) naca.c -DSTANDALONE -o $@ -lm
 
 body: body.c
