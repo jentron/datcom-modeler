@@ -100,24 +100,37 @@ if(verbose > 1 )fprintf(stderr,"%s CASE 4:\n", name);
 	 break;
 
 	 case '5':  /* Using Naca 4 series math */
-		foo = &name[9];
-		i = atoi(foo);
 if(verbose > 1 )fprintf(stderr,"%s CASE 5: %d ", name, i);
-		m = i/10000;
-		i -= m*10000;
-		m *= 0.01;
+		bar[0] = name[9];
+		bar[1] = 0;
+		m = atol(bar)*0.15;
+m/=10; //make the 4 series pretty
 
-		p = i/100;
-		i -= p*100;
-		p *= 0.005;
 
-		t = (double)i * 0.01;
+		bar[0] = name[10];
+		bar[1] = name[11];
+		bar[2] = 0;
+		p = atol(bar)/200.;
+p*=2; //make the 4 series pretty
+
+		bar[0] = name[12];
+		bar[1] = name[13];
+		bar[2] = 0;
+		t = atol(bar)/100.;
+if(verbose > 2 )fprintf(stderr,"thickness = %s%% = %0.2f\n", bar, t);
+
 	 break;
 
 	 case '6':
+// NACA-V-6-631-012
+// 0123456789012345
 if(verbose > 1 )fprintf(stderr,"%s CASE 6\n", name);
-		bar[0]=name[13];
-		bar[1]=name[14];
+		i=12;
+		if((name[i] == '-')||(name[i] == 'A')) i++;
+		if((name[i] == '-')||(name[i] == 'A')) i++;
+		i++;
+		bar[0]=name[i++];
+		bar[1]=name[i];
 		bar[2]=0;
 		t = atol(bar)/100.;
 if(verbose > 1 )fprintf(stderr,"thickness = %s%% = %0.2f\n", bar, t);
