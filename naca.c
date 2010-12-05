@@ -36,26 +36,84 @@ double *TaperSeq(int s);
 
 
 #ifdef STANDALONE
+#include <unistd.h>
+
+void Usage(char *name)
+{
+	fprintf(stderr, "Usage: %s [-a|r] [-n (number of points)] [-v] [-q] [-o file] NACA-X-Y-ZZZZ\n", name);
+	fprintf(stderr, "\ta|r output in ac3d or raw format\n\tv verbose\n\tquiet\n\tn number of points in foil (at least 5)\n");
+	fprintf(stderr, "\to filename to use instead of stdout\n");
+	fprintf(stderr, "NACA name is in datcom format:\n The four letters NACA, a hyphen, any character, a hyphen, ");
+	fprintf(stderr, "foil type (1, 4, 5, 6, S), a hypen, the foil number.\n");
+}
+
+#define OUT_RAW  0
+#define OUT_AC3D 1
+//#define OUT_
+
 int verbose = 3;
 int main(int argc, char *argv[])
 {
 	struct AIRFOIL airfoil;
 	int i, count;
 	int stations=20;
+	int opt;
+	int output_type=OUT_RAW;
 	FILE *ofp=stdout;
 
-	if (argc !=2) 
+	while ((opt = getopt(argc, argv, "ar:n:o:qv")) != -1)
 	{
-		fprintf(stderr,"USAGE: %s NACA-x-N-XXXX\n\t where N is the foil type and xxxx is the actual foil number", argv[0]);
-		return -1;
+		switch (opt)
+		{
+			case 'a':
+				output_type=OUT_AC3D;
+				break;
+			case 'r':
+				output_type=OUT_RAW;
+				break;
+
+			case 'n':
+				stations=atoi(optarg);
+				if(stations<5)
+				{
+					Usage(argv[0]);
+					exit(EXIT_FAILURE);
+				}
+				break;
+
+			case 'o':
+				fprintf(stderr, "Creating file: %s\n",  optarg);
+				if( ( ofp = fopen(optarg, "w")) == NULL)
+				{
+					fprintf(stderr,"Unable to open %s for writing\n", optarg);
+					exit(EXIT_FAILURE);
+				}
+				break;
+			case 'v':
+				verbose++;
+				break;
+			case 'q':
+				verbose = 0;
+				break;
+			default: /* '?' */
+				Usage(argv[0]);
+				exit(EXIT_FAILURE);
+		}
 	}
-	NacaFoil(argv[1], &airfoil, stations);
-if(1) // set this to 0 to get raw points
+
+//	fprintf(stderr, "verbose=%d; optind=%d\n", verbose, optind);
+
+	if (optind >= argc) {
+		Usage(argv[0]);
+		exit(EXIT_FAILURE);
+	}
+	NacaFoil(argv[optind], &airfoil, stations);
+if(output_type==OUT_AC3D) 
 {		count=airfoil.COUNT-1;
 	        fprintf(ofp,"AC3Db\n");
         	fprintf(ofp,"MATERIAL \"white\" rgb 0.788 0.788 0.788  amb 0.788 0.788 0.788  emis 0 0 0  spec 1 1 1  shi 65  trans 0\n");
 	        fprintf(ofp,"OBJECT world\nkids %d\n", 1);
-		fprintf(ofp,"OBJECT polyline\nname \"%s\"\ncrease 89.0\nnumvert %d\n", argv[1], count);
+		fprintf(ofp,"OBJECT polyline\nname \"%s\"\ncrease 89.0\nnumvert %d\n", argv[optind], count);
 		for(i=0;i<count;i++)
 		{
 			fprintf(ofp, "%0.4f 0.0 %0.4f\n", airfoil.DATAX[i], airfoil.DATAY[i]);
@@ -70,7 +128,7 @@ if(1) // set this to 0 to get raw points
 	} else {
 		for(i=0;i<airfoil.COUNT;i++)
 		{
-			fprintf(ofp, "0.0 %0.4f %0.4f\n", airfoil.DATAX[i], airfoil.DATAY[i]);
+			fprintf(ofp, "%0.4f %0.4f\n", airfoil.DATAX[i], airfoil.DATAY[i]);
 		}
 	}
 }
