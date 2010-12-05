@@ -179,9 +179,15 @@ int dofoils(DATCOM_AIRFOIL *datcomfoil, struct AIRFOIL *foil, char * defaultfoil
         if (datcomfoil->NPTS && datcomfoil->YUPPER && datcomfoil->YLOWER)
                 DatcomFoil(datcomfoil, foil);
         else if(datcomfoil->NACA_DESCR)
+	{
               NacaFoil(datcomfoil->NACA_DESCR, foil, 20);
+              foil->COUNT--;
+	}
 	else if(defaultfoil)
+	{
 		NacaFoil(defaultfoil, foil, 20);
+		foil->COUNT--;
+	}
         else return(0);
 
 
