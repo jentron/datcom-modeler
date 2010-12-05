@@ -40,7 +40,7 @@ int verbose = 3;
 int main(int argc, char *argv[])
 {
 	struct AIRFOIL airfoil;
-	int i;
+	int i, count;
 	int stations=20;
 	FILE *ofp=stdout;
 
@@ -51,17 +51,17 @@ int main(int argc, char *argv[])
 	}
 	NacaFoil(argv[1], &airfoil, stations);
 if(1) // set this to 0 to get raw points
-{
+{		count=airfoil.COUNT-1;
 	        fprintf(ofp,"AC3Db\n");
         	fprintf(ofp,"MATERIAL \"white\" rgb 0.788 0.788 0.788  amb 0.788 0.788 0.788  emis 0 0 0  spec 1 1 1  shi 65  trans 0\n");
 	        fprintf(ofp,"OBJECT world\nkids %d\n", 1);
-		fprintf(ofp,"OBJECT polyline\nname \"%s\"\ncrease 89.0\nnumvert %d\n", argv[1], airfoil.COUNT);
-		for(i=0;i<airfoil.COUNT;i++)
+		fprintf(ofp,"OBJECT polyline\nname \"%s\"\ncrease 89.0\nnumvert %d\n", argv[1], count);
+		for(i=0;i<count;i++)
 		{
 			fprintf(ofp, "%0.4f 0.0 %0.4f\n", airfoil.DATAX[i], airfoil.DATAY[i]);
 		}
-		fprintf(ofp,"numsurf 1\nSURF 0x31\nmat 0\nrefs %d\n", airfoil.COUNT);
-        	for(i=0;i<airfoil.COUNT;i++)
+		fprintf(ofp,"numsurf 1\nSURF 0x31\nmat 0\nrefs %d\n", count);
+        	for(i=0;i<count;i++)
 	        {
         	        fprintf(ofp, "%d 0.0 0.0\n", i);
 	        }
@@ -145,12 +145,14 @@ if(verbose > 2 )fprintf(stderr,"thickness = %s%% = %0.2f\n", bar, t);
 
 	 case '6':
 // NACA-V-6-631-012
+// NACA-W-6-64210.68
+// NACA-W-6-64-210.68
 // 0123456789012345
 if(verbose > 1 )fprintf(stderr,"%s CASE 6\n", name);
-		i=12;
-		if((name[i] == '-')||(name[i] == 'A')) i++;
+		i=11;
 		if((name[i] == '-')||(name[i] == 'A')) i++;
 		i++;
+		if((name[i] == '-')||(name[i] == 'A')) i+=2;
 		bar[0]=name[i++];
 		bar[1]=name[i];
 		bar[2]=0;
