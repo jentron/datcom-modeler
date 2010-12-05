@@ -28,8 +28,12 @@
 #include "modeler.h"
 extern int verbose;
 
+/* Tube surface joins two sets of points, starting with offset a and b with surfaces */
 int tubesurface(FILE *ofp, int a, int b, int count, int type, int color);
+/* skinsurface joins a set of points in a zig-zag pattern */
 int skinsurface(FILE *ofp, int a, int count, int type, int color, int reverse);
+/* skinsurface2 joins a set of points in a ray fashion always from point a */
+int skinsurface2(FILE *ofp, int a, int count, int type, int color, int reverse);
 
 
 int InitAC(FILE *ofp, int kids)
@@ -223,7 +227,7 @@ int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *nam
 	{
 		tubesurface(ofp, current_section * airfoil->COUNT, (current_section + 1) * airfoil->COUNT , airfoil->COUNT, 0x30, current_section);
 	}
-	skinsurface(ofp, (sections)*airfoil->COUNT, airfoil->COUNT-1, 0x30, sections-1, 0);
+	skinsurface(ofp, (sections)*airfoil->COUNT, airfoil->COUNT, 0x30, sections-1, 0);
 
 	fprintf(ofp,"kids 0\n");
 
@@ -245,7 +249,7 @@ int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *nam
 	{
 		tubesurface(ofp, (current_section + 1) * airfoil->COUNT, (current_section ) * airfoil->COUNT , airfoil->COUNT, 0x30, current_section);
 	}
-	skinsurface(ofp, (sections)*airfoil->COUNT, airfoil->COUNT-1, 0x30, sections-1, 1);
+	skinsurface(ofp, (sections)*airfoil->COUNT, airfoil->COUNT, 0x30, sections-1, 1);
 	fprintf(ofp,"kids 0\n");
 
 	return(1);
@@ -327,7 +331,7 @@ int WriteFin(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *name
 	{
 		tubesurface(ofp, (current_section + 1) * airfoil->COUNT, (current_section) * airfoil->COUNT , airfoil->COUNT, 0x30, current_section);
 	}
-	skinsurface(ofp, (sections)*airfoil->COUNT, airfoil->COUNT-1, 0x30, sections-1, !vertup );
+	skinsurface(ofp, (sections)*airfoil->COUNT, airfoil->COUNT, 0x30, sections-1, vertup );
 
 	fprintf(ofp,"kids 0\n");
 
@@ -348,6 +352,33 @@ int tubesurface(FILE *ofp, int a, int b, int count, int type, int color)
 
 int skinsurface(FILE *ofp, int a, int count, int type, int color, int reverse)
 {
+	int i,j,c;
+	if(reverse){
+		for(i=a,j=a+count-1, c=count-2;c>1;i++,j--,c-=2)
+		{
+			fprintf(ofp,"SURF 0x%02x\nmat %d\nrefs 3\n%d 0 0\n%d 0 0\n%d 0 0\n", type, color, i, i+1, j);
+			fprintf(ofp,"SURF 0x%02x\nmat %d\nrefs 3\n%d 0 0\n%d 0 0\n%d 0 0\n", type, color, i+1, j-1, j);
+		}
+		if(c)
+		{
+			fprintf(ofp,"SURF 0x%02x\nmat %d\nrefs 3\n%d 0 0\n%d 0 0\n%d 0 0\n", type, color, i, i+1, j);
+		}
+	} else {
+		for(i=a,j=a+count-1, c=count-2;c>1;i++,j--,c-=2)
+		{	
+			fprintf(ofp,"SURF 0x%02x\nmat %d\nrefs 3\n%d 0 0\n%d 0 0\n%d 0 0\n", type, color, i+1, i, j);
+			fprintf(ofp,"SURF 0x%02x\nmat %d\nrefs 3\n%d 0 0\n%d 0 0\n%d 0 0\n", type, color, i+1, j, j-1);
+		}
+		if(c)
+		{
+			fprintf(ofp,"SURF 0x%02x\nmat %d\nrefs 3\n%d 0 0\n%d 0 0\n%d 0 0\n", type, color, i+1, i, j);
+		}
+	}
+
+}
+
+int skinsurface2(FILE *ofp, int a, int count, int type, int color, int reverse)
+{
 	int i;
 	if(reverse){
 		for(i=1;i<count;i++)
@@ -362,4 +393,3 @@ int skinsurface(FILE *ofp, int a, int count, int type, int color, int reverse)
 	}
 
 }
-

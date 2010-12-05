@@ -10,18 +10,17 @@ The fuselage body is colored green.  The un-exposed spans of the wings and fins 
 
 
 What doesn't work:
-2. TVTPAN isn't implemented.
-3. Oops, missed .VERTUP.
 6. jet pods aren't there.
 7. Supersonic body features aren't there.
 8. 4 digit NACA airfoils are present.
    Airfoils defined by XORD, YUPPER and YLOWER are also drawn correctly.
-   Other NACA airfoil types default to a NACA 4 digit shape.  NACA 2414 for wings and NACA 0014 for fins and tails.
-   NACA 5 airfoils are drawn badly.
+   Other NACA airfoil types default to a NACA 4 digit shape.  NACA 24xx for wings and NACA 00xx for fins and tails.
+   Where xx is the defined thickness for NACA 5 and 6 foils and 14 for other foils
 
 Ron Jensen, 
 Sun May  3 18:07:25 MDT 2009
 Mon May 11 20:39:32 MDT 2009
+Sat Dec  4 11:33:00 MDT 2010
 
 ron (at) jentronics.com
 
