@@ -1,0 +1,22 @@
+#! /bin/bash
+
+#first, a bad foil
+./naca -a "NACA-X-x-0012" >foo.ac;osgviewer foo.ac
+
+# need an acurate foil for type 1!
+./naca -a "NACA-X-1-0012" >foo.ac;osgviewer foo.ac
+
+# type 4
+./naca -a "NACA-X-4-0012" >foo.ac;osgviewer foo.ac
+./naca -a "NACA-X-4-2112" >foo.ac;osgviewer foo.ac
+
+#type 5
+./naca -a "NACA-X-5-23015" >foo.ac;osgviewer foo.ac
+
+#type 6
+./naca -a "NACA-X-6-64-005" >foo.ac;osgviewer foo.ac
+./naca -a "NACA-X-6-64-205" >foo.ac;osgviewer foo.ac
+./naca -a "NACA-X-6-63A005" >foo.ac;osgviewer foo.ac
+./naca -a "NACA-X-6-652A215" >foo.ac;osgviewer foo.ac
+./naca -a "NACA-X-6-65,2A215" >foo.ac;osgviewer foo.ac
+
