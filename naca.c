@@ -139,7 +139,7 @@ extern int verbose;
 int NacaFoil(char *name, struct AIRFOIL *foil, int stations)
 {
 	double m, p, t;
-	int i=16;
+	int i=16, q;
 	char *foo;
 	char bar[3];
 	if(strncmp("NACA", name, 4) )
@@ -160,6 +160,8 @@ int NacaFoil(char *name, struct AIRFOIL *foil, int stations)
 	{
 	 case '1':
 if(verbose > 1 )fprintf(stderr,"%s CASE 1\n", name);
+if(verbose > 1 )fprintf(stderr," m = %0.2f, p = %0.2f, t = %0.2f\n", m, p, t);
+	naca4digit(m, p, t, foil, stations);
 	 break;
 
 	 case '4':
@@ -176,28 +178,37 @@ if(verbose > 1 )fprintf(stderr,"%s CASE 4:\n", name);
 		bar[1] = name[12];
 		bar[2] = 0;
 		t = atol(bar)/100.;
+if(verbose > 1 )fprintf(stderr," m = %0.2f, p = %0.2f, t = %0.2f\n", m, p, t);
+	naca4digit(m, p, t, foil, stations);
 
 	 break;
 
 	 case '5':  /* Using Naca 4 series math */
-if(verbose > 1 )fprintf(stderr,"%s CASE 5: %d ", name, i);
+if(verbose > 1 )fprintf(stderr,"%s CASE 5:\n", name);
 		bar[0] = name[9];
 		bar[1] = 0;
 		m = atol(bar)*0.15;
+if(verbose > 2 )fprintf(stderr,"design lift coefficient = %s%% (%0.2f)\n", bar, m);
 m/=10; //make the 4 series pretty
 
-
 		bar[0] = name[10];
-		bar[1] = name[11];
-		bar[2] = 0;
-		p = atol(bar)/200.;
+		bar[1] = 0;
+		p = atol(bar)/20.;
+if(verbose > 2 )fprintf(stderr,"max camber position = (%s/2)%% (%0.2f)\n", bar, p);
 p*=2; //make the 4 series pretty
+
+		bar[0] = name[11];
+		bar[1] = 0;
+		q = atoi(bar);
+if(verbose > 2 )fprintf(stderr,"reflex = %s (%d)\n", bar, q);
 
 		bar[0] = name[12];
 		bar[1] = name[13];
 		bar[2] = 0;
 		t = atol(bar)/100.;
-if(verbose > 2 )fprintf(stderr,"thickness = %s%% = %0.2f\n", bar, t);
+if(verbose > 2 )fprintf(stderr,"thickness = %s%% (%0.2f)\n", bar, t);
+if(verbose > 1 )fprintf(stderr," m = %0.2f, p = %0.2f, t = %0.2f\n", m, p, t);
+	naca4digit(m, p, t, foil, stations);
 
 	 break;
 
@@ -216,21 +227,25 @@ if(verbose > 1 )fprintf(stderr,"%s CASE 6\n", name);
 		bar[2]=0;
 		t = atol(bar)/100.;
 if(verbose > 2 )fprintf(stderr,"NACA 6 thickness = %s%% = %0.2f\n", bar, t);
+if(verbose > 1 )fprintf(stderr," m = %0.2f, p = %0.2f, t = %0.2f\n", m, p, t);
+	naca4digit(m, p, t, foil, stations);
 
 	 break;
 
 	 case 'S':
 if(verbose > 1 )fprintf(stderr,"%s CASE S\n", name);
+if(verbose > 1 )fprintf(stderr," m = %0.2f, p = %0.2f, t = %0.2f\n", m, p, t);
+	naca4digit(m, p, t, foil, stations);
 	 break;
 
 	 default:
 if(verbose > 0 )fprintf(stderr,"%s Unknown airfoil\n", name);
+m=0;t=0;
+if(verbose > 1 )fprintf(stderr," m = %0.2f, p = %0.2f, t = %0.2f\n", m, p, t);
+	naca4digit(m, p, t, foil, stations);
 	}
 
 
-if(verbose > 1 )fprintf(stderr," m = %0.2f, p = %0.2f, t = %0.2f\n", m, p, t);
-
-	naca4digit(m, p, t, foil, stations);
 }
 
 void naca4digit(double m, double p, double t, struct AIRFOIL *airfoil, int stations )
