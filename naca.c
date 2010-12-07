@@ -117,7 +117,7 @@ if(output_type==OUT_AC3D)
 		fprintf(ofp,"OBJECT polyline\nname \"%s\"\ncrease 89.0\nnumvert %d\n", argv[optind], count);
 		for(i=0;i<count;i++)
 		{
-			fprintf(ofp, "%0.4f 0.0 %0.4f\n", airfoil.DATAX[i], airfoil.DATAY[i]);
+			fprintf(ofp, "%0.8f 0.0 %0.8f\n", airfoil.DATAX[i], airfoil.DATAY[i]);
 		}
 		fprintf(ofp,"numsurf 1\nSURF 0x31\nmat 0\nrefs %d\n", count);
         	for(i=0;i<count;i++)
@@ -129,7 +129,7 @@ if(output_type==OUT_AC3D)
 	} else {
 		for(i=0;i<airfoil.COUNT;i++)
 		{
-			fprintf(ofp, "%0.4f %0.4f\n", airfoil.DATAX[i], airfoil.DATAY[i]);
+			fprintf(ofp, "%0.8f %0.8f\n", airfoil.DATAX[i], airfoil.DATAY[i]);
 		}
 	}
 }
