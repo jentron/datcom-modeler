@@ -32,6 +32,7 @@
 #include "modeler_proto.h"
 
 void naca4digit(double m, double p, double t, struct AIRFOIL *airfoil, int stations);
+void naca5digit(double m, double t, double K1, int q, struct AIRFOIL *airfoil, int stations);
 double *TaperSeq(int s);
 
 
@@ -138,7 +139,7 @@ extern int verbose;
 
 int NacaFoil(char *name, struct AIRFOIL *foil, int stations)
 {
-	double m, p, t;
+	double m, p, t, K1;
 	int i=16, q;
 	char *foo;
 	char bar[3];
@@ -183,32 +184,62 @@ if(verbose > 1 )fprintf(stderr," m = %0.2f, p = %0.2f, t = %0.2f\n", m, p, t);
 
 	 break;
 
-	 case '5':  /* Using Naca 4 series math */
+	 case '5':  
 if(verbose > 1 )fprintf(stderr,"%s CASE 5:\n", name);
 		bar[0] = name[9];
 		bar[1] = 0;
 		m = atol(bar)*0.15;
 if(verbose > 2 )fprintf(stderr,"design lift coefficient = %s%% (%0.2f)\n", bar, m);
-m/=10; //make the 4 series pretty
+
+/* do thickness first so it can be set to zero if the camber position fails! */
+		bar[0] = name[12];
+		bar[1] = name[13];
+		bar[2] = 0;
+		t = atol(bar)/100.;
+if(verbose > 2 )fprintf(stderr,"thickness = %s%% (%0.2f)\n", bar, t);
+
 
 		bar[0] = name[10];
 		bar[1] = 0;
 		p = atol(bar)/20.;
 if(verbose > 2 )fprintf(stderr,"max camber position = (%s/2)%% (%0.2f)\n", bar, p);
-p*=2; //make the 4 series pretty
+		switch (bar[0])
+		{
+			case '1':
+				m=0.0580;
+				K1=361.4;
+				break;
+			case '2':
+				m=0.1260;
+				K1=51.65;
+				break;
+			case '3':
+				m=0.2025;
+				K1=15.65;
+				break;
+			case '4':
+				m=0.2900;
+				K1=6.643;
+				break;
+			case '5':
+				m=0.3910;
+				K1=3.230;
+				break;
+			default:
+				m=0;
+				t=0;
+				K1=0;
+if(verbose > 0 )fprintf(stderr,"Bad camber specification %c in %s\n", bar[0], name);
+				break;
+		}
 
 		bar[0] = name[11];
 		bar[1] = 0;
 		q = atoi(bar);
 if(verbose > 2 )fprintf(stderr,"reflex = %s (%d)\n", bar, q);
 
-		bar[0] = name[12];
-		bar[1] = name[13];
-		bar[2] = 0;
-		t = atol(bar)/100.;
-if(verbose > 2 )fprintf(stderr,"thickness = %s%% (%0.2f)\n", bar, t);
-if(verbose > 1 )fprintf(stderr," m = %0.2f, p = %0.2f, t = %0.2f\n", m, p, t);
-	naca4digit(m, p, t, foil, stations);
+if(verbose > 1 )fprintf(stderr," m = %0.2f, K1 = %0.2f, t = %0.2f\n", m, K1, t);
+	naca5digit(m, t, K1, q, foil, stations);
 
 	 break;
 
@@ -275,26 +306,45 @@ airfoil->COUNT = 2 * stations;
 		airfoil->DATAY[i] = yc + yt;
 		airfoil->DATAX[j] = x[i];
 		airfoil->DATAY[j] = yc - yt;
-
-/*
-theta = atan2(dyc,dx) ;
-Xu = x[i] - yt * sin(theta);
-Yu = yc + yt * cos (theta);
-Xl = x[i] + yt * sin(theta);
-Yl = yc - yt * cos(theta);
-
-		fprintf(stdout, "%0.4f\t%0.4f\t%0.4f\t%0.4f\n", Xu, Yu, Xl, Yl);
-		fprintf(stderr, "calculating %0.2f %0.2f %0.2f at %0.2f. Yc = %0.8f, Yt = %0.4f\n", m, p, t, x[i], yc, yt);
-		if(i)
-		{
-			dx = x[i] - x[i-1];
-			dyc = yc - oyc;
-			oyc -yc;
-		}
-*/
 	}
 
 }
+
+void naca5digit(double m, double t, double K1, int q, struct AIRFOIL *airfoil, int stations )
+{
+	int i, j;
+	double yc, yt, x2, x3, x4, xroot, m2, m3;
+	double Xu, Yu, Xl, Yl,dx=0, dyc=0, oyc=0, theta;
+	double *x;
+	x=TaperSeq(stations);
+
+airfoil->DATAX = malloc( 2 * stations * sizeof(double) );
+airfoil->DATAY = malloc( 2 * stations * sizeof(double) );
+airfoil->COUNT = 2 * stations;
+
+	for(i=0, j=2*stations-1;i<stations;i++, j--){
+		x2 = x[i] * x[i];
+		x3 = x2 * x[i];
+		x4 = x3 * x[i];
+		xroot = sqrt(x[i]);
+		m2 = m * m;
+		m3 = m2 * m;
+
+		if(x[i] > m ){
+			yc = (K1/6)*(m3*(1-(x[i])));
+		} else {
+			yc = (K1/6)*(x3-3*m*x2+m2*(3-m)*x[i]);
+		}
+
+		yt = (t/0.2)*(0.2969*xroot - 0.1260 * x[i] - 0.3516*x2 + 0.2843*x3 - 0.1015*x4);
+		airfoil->DATAX[i] = x[i];
+		airfoil->DATAY[i] = yc + yt;
+		airfoil->DATAX[j] = x[i];
+		airfoil->DATAY[j] = yc - yt;
+	}
+
+}
+
 
 double *TaperSeq(int s)
 {
