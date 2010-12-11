@@ -63,6 +63,7 @@ int main(int argc, char *argv[])
 	int engines=1;
 	int opt;
 	FILE *ofp = stdout;
+	char *outputfile=NULL;
 
 
 /* internal variables */
@@ -104,12 +105,7 @@ int main(int argc, char *argv[])
 				}
 				break;
 			case 'o':
-				fprintf(stderr, "Creating file: %s\n",  optarg);
-				if( ( ofp = fopen(optarg, "w")) == NULL)
-				{
-					fprintf(stderr,"Unable to open %s for writing\n", optarg);
-					exit(EXIT_FAILURE);
-				}
+				outputfile=optarg;
 				break;
 			case 'v':
 				verbose++;
@@ -130,8 +126,20 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
-   ReadDatcom(argv[optind], &ac);
-   PrintAC(&ac);
+	ReadDatcom(argv[optind], &ac);
+
+/* ReadDatcom will exit() on error so don't create the output file until after it is called */
+	if(outputfile)
+	{
+		fprintf(stderr, "Creating file: %s\n",  outputfile);
+		if( ( ofp = fopen(outputfile, "w")) == NULL)
+		{
+			fprintf(stderr,"Unable to open %s for writing\n", outputfile);
+			exit(EXIT_FAILURE);
+		}
+	}
+
+	PrintAC(&ac);
 
 /* Process wingfoil */
 	if (wing) wing = ac.wing.CHRDR > 0. ? 1 : 0; // only render if root chord exists

@@ -258,6 +258,11 @@ void ReadDatcom(char* filename, AIRCRAFT* aircraft)
 {
     yyin = fopen(filename, "r");
 
+    if(!yyin){
+      fprintf(stderr,"Failed to open input file %s\n", filename);
+      exit(EXIT_FAILURE);
+    }
+
     InitializeParser(aircraft);
     yylex();
     fclose(yyin);
