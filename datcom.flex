@@ -45,7 +45,10 @@
     #define NL_VTSCHR  10
     #define NL_VFSCHR  11
     #define NL_PROPWR  12
-    #define NL_MAX     13 /* Keep this entry last! */
+    #define NL_SYMFLP  13
+    #define NL_ASYFLP  14
+    #define NL_OPTINS  15
+    #define NL_MAX     16 /* Keep this entry last! */
 
     static int line_number;
 
@@ -70,6 +73,9 @@
                                        "$VTSCHR",
                                        "$VFSCHR",
                                        "$PROPWR",
+                                       "$SYMFLP",
+                                       "$ASYFLP",
+                                       "$OPTINS",
                                    };
 
     /* Internal functions. */
