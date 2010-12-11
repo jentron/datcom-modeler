@@ -356,6 +356,15 @@ static void ReadVariable(char* var)
     case NL_PROPWR:
         PROPWRReadVariable(var);
         break;
+    case NL_SYMFLP:
+// FIXME: Do Something!
+        break;
+    case NL_ASYFLP:
+// FIXME: Do Something!
+        break;
+    case NL_OPTINS:
+// FIXME: Do Something!
+        break;
     default:
         break;
     }
