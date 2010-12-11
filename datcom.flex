@@ -147,7 +147,7 @@ LENDCOMMENT     "!"{NEOL}*
 %%
 
 <namelist>{DOUBLE} {
-    if (verbose > 2) fprintf(stderr,"    DOUBLE: %s = %g\n", yytext, atof(yytext));
+    if (verbose > 2) fprintf(stderr,"datcom-parser:    DOUBLE: %s = %g\n", yytext, atof(yytext));
     /* Bill Galbraith 10-13-10  This is a more accurate output */
     /* Ron Jensen 10-13-10 The conversion is done with atof() so perhaps both are interesting */
     //fprintf(stderr,"    DOUBLE: %s\n", yytext);
@@ -156,20 +156,20 @@ LENDCOMMENT     "!"{NEOL}*
 }
 
 <namelist>{BOOL} {
-    if (verbose > 2) fprintf(stderr,"    BOOL: %s\n", yytext);
+    if (verbose > 2) fprintf(stderr,"datcom-parser:    BOOL: %s\n", yytext);
     ReadNumber(yytext);
     AppendToLineRead(yytext);
 }
 
 <INITIAL>{NAMELIST} {
-    if (verbose > 2) fprintf(stderr,"NAMELIST: %s\n", yytext);
+    if (verbose > 2) fprintf(stderr,"datcom-parser:NAMELIST: %s\n", yytext);
     BEGIN(namelist);
     BeginNameList(yytext);
     AppendToLineRead(yytext);
 }
 
 <namelist>"$" {
-    if (verbose > 2) fprintf(stderr,"END OF NAMELIST\n");
+    if (verbose > 2) fprintf(stderr,"datcom-parser:END OF NAMELIST\n");
     BEGIN(INITIAL);
     EndNameList();
     AppendToLineRead(yytext);
@@ -183,7 +183,7 @@ LENDCOMMENT     "!"{NEOL}*
     if (e != NULL) {
         *e = '\0';
     }
-    if (verbose > 2) fprintf(stderr,"  ARRAYVARIABLE: %s\n", yytext);
+    if (verbose > 2) fprintf(stderr,"datcom-parser:  ARRAYVARIABLE: %s\n", yytext);
 
     ReadVariable(yytext);
 }
@@ -202,19 +202,19 @@ LENDCOMMENT     "!"{NEOL}*
         *e = '\0';
     }
     AppendToLineRead(yytext);
-    if (verbose > 2) fprintf(stderr,"  VARIABLE: %s\n", yytext);
+    if (verbose > 2) fprintf(stderr,"datcom-parser:  VARIABLE: %s\n", yytext);
 
     ReadVariable(yytext);
 }
 
 {NACAAIRFOIL} {
-    if (verbose > 2) fprintf(stderr,"AIRFOIL: %s\n", yytext);
+    if (verbose > 2) fprintf(stderr,"datcom-parser:AIRFOIL: %s\n", yytext);
     NACARead(yytext);
     ClearLineRead();
 }
 
 {COMMAND}{NEOL}* {
-	if (verbose > 2) fprintf(stderr,"Command: %s\n", yytext);
+	if (verbose > 2) fprintf(stderr,"datcom-parser:Command: %s\n", yytext);
 
     /* Drop uninteresting commands */
     ClearLineRead();
@@ -282,7 +282,7 @@ static void InitializeParser(AIRCRAFT* aircraft)
 
 static void Fail()
 {
-    if (verbose > 0) fprintf(stderr, "Error: Unrecognized or misplaced character '%s' in line %d\n",
+    if (verbose > 0) fprintf(stderr, "datcom-parser: Error: Unrecognized or misplaced character '%s' in line %d\n",
             yytext, line_number);
     fprintf(stderr, "Errant line up to the error is:\n%s\n", LineRead );
     exit(-1);
@@ -303,7 +303,14 @@ static void BeginNameList(char* name)
             current_namelist = i;
         }
     }
-}
+
+    if (current_namelist == NL_UNKNOWN) {
+        if (verbose > 1) fprintf(stderr,
+               "datcom-parser: Unknown NAMELIST %s in line %d\n",
+                name,
+                line_number);
+    }
+ }
 
 static void EndNameList()
 {
@@ -318,6 +325,19 @@ static void EndNameList()
 
 static void ReadVariable(char* var)
 {
+    if(verbose > 0) //FIXME: Raise verbosity level later 
+    {
+        switch (current_namelist) {
+        case NL_NONE:
+            fprintf(stderr,"datcom-parser: NL_NONE\n");
+            break;
+        case NL_UNKNOWN: // This case will print elsewhere
+//            fprintf(stderr,"datcom-parser: NL_UNKNOWN\n");
+            break;
+        default:
+            if(current_namelist < NL_MAX) fprintf(stderr,"datcom-parser: %s\n", NL_NAME[current_namelist]);
+        }
+    }
     switch (current_namelist) {
     case NL_NONE:
         if (verbose > 0) fputs("datcom-parser: Variable outside of NAMELIST", stderr);
@@ -623,7 +643,7 @@ static void AppendToLineRead(char* str)
     strcat( LineRead, str );
     if ( strlen(LineRead) > 80 )
     {
-       fprintf(stderr,"Line is too long at line %d. Keep it under 80 characters\n%s\n", 
+       fprintf(stderr,"datcom-parser: Line is too long at line %d. Keep it under 80 characters\n%s\n", 
           line_number, LineRead );
 //       exit(-1);
     }

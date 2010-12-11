@@ -160,13 +160,13 @@ int NacaFoil(char *name, struct AIRFOIL *foil, int stations)
 	switch (name[7])
 	{
 	 case '1':
-if(verbose > 1 )fprintf(stderr,"%s CASE 1\n", name);
-if(verbose > 1 )fprintf(stderr," m = %0.2f, p = %0.2f, t = %0.2f\n", m, p, t);
+if(verbose > 1 )fprintf(stderr,"naca:%s CASE 1\n", name);
+if(verbose > 1 )fprintf(stderr,"naca: m = %0.2f, p = %0.2f, t = %0.2f\n", m, p, t);
 	naca4digit(m, p, t, foil, stations);
 	 break;
 
 	 case '4':
-if(verbose > 1 )fprintf(stderr,"%s CASE 4:\n", name);
+if(verbose > 1 )fprintf(stderr,"naca:%s CASE 4:\n", name);
 		bar[0] = name[9];
 		bar[1] = 0;
 		m = atol(bar)/100.;
@@ -179,30 +179,30 @@ if(verbose > 1 )fprintf(stderr,"%s CASE 4:\n", name);
 		bar[1] = name[12];
 		bar[2] = 0;
 		t = atol(bar)/100.;
-if(verbose > 1 )fprintf(stderr," m = %0.2f, p = %0.2f, t = %0.2f\n", m, p, t);
+if(verbose > 1 )fprintf(stderr,"naca: m = %0.2f, p = %0.2f, t = %0.2f\n", m, p, t);
 	naca4digit(m, p, t, foil, stations);
 
 	 break;
 
 	 case '5':  
-if(verbose > 1 )fprintf(stderr,"%s CASE 5:\n", name);
+if(verbose > 1 )fprintf(stderr,"naca:%s CASE 5:\n", name);
 		bar[0] = name[9];
 		bar[1] = 0;
 		m = atol(bar)*0.15;
-if(verbose > 2 )fprintf(stderr,"design lift coefficient = %s%% (%0.2f)\n", bar, m);
+if(verbose > 2 )fprintf(stderr,"naca:  design lift coefficient = %s%% (%0.2f)\n", bar, m);
 
 /* do thickness first so it can be set to zero if the camber position fails! */
 		bar[0] = name[12];
 		bar[1] = name[13];
 		bar[2] = 0;
 		t = atol(bar)/100.;
-if(verbose > 2 )fprintf(stderr,"thickness = %s%% (%0.2f)\n", bar, t);
+if(verbose > 2 )fprintf(stderr,"naca: thickness = %s%% (%0.2f)\n", bar, t);
 
 
 		bar[0] = name[10];
 		bar[1] = 0;
 		p = atol(bar)/20.;
-if(verbose > 2 )fprintf(stderr,"max camber position = (%s/2)%% (%0.2f)\n", bar, p);
+if(verbose > 2 )fprintf(stderr,"naca: max camber position = (%s/2)%% (%0.2f)\n", bar, p);
 		switch (bar[0])
 		{
 			case '1':
@@ -229,16 +229,16 @@ if(verbose > 2 )fprintf(stderr,"max camber position = (%s/2)%% (%0.2f)\n", bar, 
 				m=0;
 				t=0;
 				K1=0;
-if(verbose > 0 )fprintf(stderr,"Bad camber specification %c in %s\n", bar[0], name);
+if(verbose > 0 )fprintf(stderr,"naca: Bad camber specification %c in %s\n", bar[0], name);
 				break;
 		}
 
 		bar[0] = name[11];
 		bar[1] = 0;
 		q = atoi(bar);
-if(verbose > 2 )fprintf(stderr,"reflex = %s (%d)\n", bar, q);
+if(verbose > 2 )fprintf(stderr,"naca: reflex = %s (%d)\n", bar, q);
 
-if(verbose > 1 )fprintf(stderr," m = %0.2f, K1 = %0.2f, t = %0.2f\n", m, K1, t);
+if(verbose > 1 )fprintf(stderr,"naca: m = %0.2f, K1 = %0.2f, t = %0.2f\n", m, K1, t);
 	naca5digit(m, t, K1, q, foil, stations);
 
 	 break;
@@ -248,7 +248,7 @@ if(verbose > 1 )fprintf(stderr," m = %0.2f, K1 = %0.2f, t = %0.2f\n", m, K1, t);
 // NACA-W-6-64210.68
 // NACA-W-6-64-210.68
 // 0123456789012345
-if(verbose > 1 )fprintf(stderr,"%s CASE 6\n", name);
+if(verbose > 1 )fprintf(stderr,"naca: %s CASE 6\n", name);
 		i=11;
 		if((name[i] == '-')||(name[i] == 'A')) i++;
 		i++;
@@ -257,22 +257,22 @@ if(verbose > 1 )fprintf(stderr,"%s CASE 6\n", name);
 		bar[1]=name[i];
 		bar[2]=0;
 		t = atol(bar)/100.;
-if(verbose > 2 )fprintf(stderr,"NACA 6 thickness = %s%% = %0.2f\n", bar, t);
-if(verbose > 1 )fprintf(stderr," m = %0.2f, p = %0.2f, t = %0.2f\n", m, p, t);
+if(verbose > 2 )fprintf(stderr,"naca: NACA 6 thickness = %s%% = %0.2f\n", bar, t);
+if(verbose > 1 )fprintf(stderr,"naca: m = %0.2f, p = %0.2f, t = %0.2f\n", m, p, t);
 	naca4digit(m, p, t, foil, stations);
 
 	 break;
 
 	 case 'S':
-if(verbose > 1 )fprintf(stderr,"%s CASE S\n", name);
-if(verbose > 1 )fprintf(stderr," m = %0.2f, p = %0.2f, t = %0.2f\n", m, p, t);
+if(verbose > 1 )fprintf(stderr,"naca:%s CASE S\n", name);
+if(verbose > 1 )fprintf(stderr,"naca: m = %0.2f, p = %0.2f, t = %0.2f\n", m, p, t);
 	naca4digit(m, p, t, foil, stations);
 	 break;
 
 	 default:
-if(verbose > 0 )fprintf(stderr,"%s Unknown airfoil\n", name);
+if(verbose > 0 )fprintf(stderr,"naca: %s Unknown airfoil\n", name);
 m=0;t=0;
-if(verbose > 1 )fprintf(stderr," m = %0.2f, p = %0.2f, t = %0.2f\n", m, p, t);
+if(verbose > 1 )fprintf(stderr,"naca: m = %0.2f, p = %0.2f, t = %0.2f\n", m, p, t);
 	naca4digit(m, p, t, foil, stations);
 	}
 
