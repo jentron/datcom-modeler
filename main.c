@@ -172,7 +172,7 @@ int main(int argc, char *argv[])
 		objects += propellers;
 	}
 
-      InitAC(ofp, objects );
+      InitAC(ofp, objects, 65);
       if (wing) WriteWing(ofp, &ac.wing, &wingfoil, "Wing", ac.synths.XW, ac.synths.ZW);
       if (htail) WriteWing(ofp, &ac.htail, &htailfoil, "H-Tail", ac.synths.XH, ac.synths.ZH);
       if (vtail) WriteFin(ofp, &ac.vtail, &vtailfoil, "V-Tail", ac.synths.XV, ac.synths.ZV, 1);

@@ -36,12 +36,12 @@ int skinsurface(FILE *ofp, int a, int count, int type, int color, int reverse);
 int skinsurface2(FILE *ofp, int a, int count, int type, int color, int reverse);
 
 
-int InitAC(FILE *ofp, int kids)
+int InitAC(FILE *ofp, int kids, int shiny)
 {
 	fprintf(ofp,"AC3Db\n");
-	fprintf(ofp,"MATERIAL \"zinc-chromate\" rgb 0.455 0.722 0.169  amb 0.455 0.722 0.169  emis 0 0 0  spec 0.227 0.161 0.161  shi 65  trans 0\n");
-	fprintf(ofp,"MATERIAL \"white\" rgb 0.788 0.788 0.788  amb 0.788 0.788 0.788  emis 0 0 0  spec 1 1 1  shi 65  trans 0\n");
-	fprintf(ofp,"MATERIAL \"red\" rgb 0.906 0.369 0.31  amb 0.906 0.369 0.37  emis 0 0 0  spec 0 0 0  shi 65  trans 0 \n");
+	fprintf(ofp,"MATERIAL \"zinc-chromate\" rgb 0.455 0.722 0.169  amb 0.455 0.722 0.169  emis 0 0 0  spec 0.227 0.161 0.161  shi %d  trans 0\n", shiny);
+	fprintf(ofp,"MATERIAL \"white\" rgb 0.788 0.788 0.788  amb 0.788 0.788 0.788  emis 0 0 0  spec 1 1 1  shi %d  trans 0\n", shiny);
+	fprintf(ofp,"MATERIAL \"red\" rgb 0.906 0.369 0.31  amb 0.906 0.369 0.37  emis 0 0 0  spec 0 0 0  shi %d  trans 0 \n", shiny);
 	fprintf(ofp,"OBJECT world\nkids %d\n", kids);
 
 }
