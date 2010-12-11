@@ -284,6 +284,7 @@ static void InitializeParser(AIRCRAFT* aircraft)
     next_int         = NULL;
 
     memset(current_aircraft, 0, sizeof(AIRCRAFT));
+    current_aircraft->optins.ROUGFC=-1; // using this as the unset value in modeler.c GetShiny()
 }
 
 static void Fail()
@@ -331,7 +332,7 @@ static void EndNameList()
 
 static void ReadVariable(char* var)
 {
-    if(verbose > 0) //FIXME: Raise verbosity level later 
+    if(verbose > 3)  
     {
         switch (current_namelist) {
         case NL_NONE:

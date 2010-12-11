@@ -69,6 +69,7 @@ int main(int argc, char *argv[])
 /* internal variables */
 	int objects = 0;
 	int propellers = 0;
+	int shiny = 0;
 	struct AIRFOIL wingfoil;
 	struct AIRFOIL htailfoil;
 	struct AIRFOIL vtailfoil;
@@ -171,8 +172,10 @@ int main(int argc, char *argv[])
 		propellers=ac.propwr.NENGSP;
 		objects += propellers;
 	}
+      if(ac.optins.ROUGFC == 0.0) shiny=65;
+      else shiny = GetShine(ac.optins.ROUGFC);
 
-      InitAC(ofp, objects, 65);
+      InitAC(ofp, objects, shiny);
       if (wing) WriteWing(ofp, &ac.wing, &wingfoil, "Wing", ac.synths.XW, ac.synths.ZW);
       if (htail) WriteWing(ofp, &ac.htail, &htailfoil, "H-Tail", ac.synths.XH, ac.synths.ZH);
       if (vtail) WriteFin(ofp, &ac.vtail, &vtailfoil, "V-Tail", ac.synths.XV, ac.synths.ZV, 1);

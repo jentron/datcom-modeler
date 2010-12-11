@@ -46,6 +46,32 @@ int InitAC(FILE *ofp, int kids, int shiny)
 
 }
 
+
+int GetShine(double roughness)
+{
+/*
+Aerodynamically Smooth	0
+Polished Metal	2.00E-005
+Polished Wood	8.00E-005
+Natural Sheet Metal	1.60E-004
+Smooth Matte Paint	2.50E-004
+Standard Camo Paint	4.00E-004
+Cheap Camo Paint	1.20E-003
+Galvanized Metal	6.00E-003
+Cast Iron	1.00E-002
+*/
+/* 0 is dull, 128 is shiny */
+
+/* I take the 5th root of the rougness value and subtract that from 128. */
+	double t;
+	if(roughness < 0.) roughness = 0.00016;
+	if(roughness > 1.00e-2) roughness = 1.00e-2;
+	t = pow(roughness, 0.2);
+	t *= 300.; // 128/(Cast Iron)^0.2 
+	t = 128.-t;
+	return((int)t);
+}
+
 int WritePropellers(FILE *ofp, struct PROPWR *propwr)
 {
 	int i, j;
