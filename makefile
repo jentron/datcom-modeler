@@ -1,5 +1,5 @@
 CFLAGS = -g
-OBJECTS = modeler.o datcom-parser.o datcomfoil.o naca.o body.o
+OBJECTS = color.o modeler.o datcom-parser.o datcomfoil.o naca.o body.o
 
 datcom-modeler: main.c $(OBJECTS) datcom-parser.h  matrix.h  modeler.h  modeler_proto.h
 	$(CC) $(CFLAGS) main.c $(OBJECTS) -o $@ -lm
@@ -12,6 +12,9 @@ naca.o: naca.c modeler.h modeler_proto.h
 
 body.o: body.c modeler.h modeler_proto.h
 	$(CC) $(CFLAGS) body.c -c -o $@ 
+
+color.o: color.c modeler.h modeler_proto.h
+	$(CC) $(CFLAGS) color.c -c -o $@ 
 
 datcom-parser.o: datcom-parser.h modeler.h datcom-parser.c
 	$(CC) $(CFLAGS) datcom-parser.c -c -o $@ 
@@ -30,6 +33,9 @@ datcom-parser.c: datcom.flex
 
 naca: naca.c 
 	$(CC) $(CFLAGS) naca.c -DSTANDALONE -o $@ -lm
+
+color: color.c 
+	$(CC) $(CFLAGS) color.c -DSTANDALONE -o $@ -lm
 
 body: body.c
 	$(CC) $(CFLAGS) body.c -DSTANDALONE -o $@ -lm

@@ -31,7 +31,11 @@ int WriteBody(FILE *ofp, struct BODY *body, struct SYNTHS *synths);
 int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *name, double X, double Z);
 int WriteFin(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *name, double X, double Z, int vertup);
 int WritePropellers(FILE *ofp, struct PROPWR *propwr);
+
+/* Functions in color.c */
 int GetShine(double roughness); /* in inches */
+int GetSpecular(double ired, double igrn, double iblu, int shiny, double *ored, double *ogrn, double *oblu);
+
 /* Functions in naca.c */
 int NacaFoil(char *name, struct AIRFOIL *foil, int stations);
 

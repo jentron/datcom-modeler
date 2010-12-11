@@ -38,38 +38,20 @@ int skinsurface2(FILE *ofp, int a, int count, int type, int color, int reverse);
 
 int InitAC(FILE *ofp, int kids, int shiny)
 {
+	double r,g,b,sr,sg,sb;
+
 	fprintf(ofp,"AC3Db\n");
-	fprintf(ofp,"MATERIAL \"zinc-chromate\" rgb 0.455 0.722 0.169  amb 0.455 0.722 0.169  emis 0 0 0  spec 0.227 0.161 0.161  shi %d  trans 0\n", shiny);
-	fprintf(ofp,"MATERIAL \"white\" rgb 0.788 0.788 0.788  amb 0.788 0.788 0.788  emis 0 0 0  spec 1 1 1  shi %d  trans 0\n", shiny);
-	fprintf(ofp,"MATERIAL \"red\" rgb 0.906 0.369 0.31  amb 0.906 0.369 0.37  emis 0 0 0  spec 0 0 0  shi %d  trans 0 \n", shiny);
+	r=0.455;g=0.722;b=0.169;
+	GetSpecular(r,g,b,shiny,&sr,&sg,&sb);
+	fprintf(ofp,"MATERIAL \"zinc-chromate\" rgb %0.3f %0.3f %0.3f amb %0.3f %0.3f %0.3f  emis 0 0 0  spec %0.3f %0.3f %0.3f shi %d  trans 0\n", r, g, b, r, g, b, sr, sg, sb, shiny);
+	r=0.788;g=0.788;b=0.788;
+	GetSpecular(r,g,b,shiny,&sr,&sg,&sb);
+	fprintf(ofp,"MATERIAL \"white\"  rgb %0.3f %0.3f %0.3f amb %0.3f %0.3f %0.3f  emis 0 0 0  spec %0.3f %0.3f %0.3f shi %d  trans 0\n", r, g, b, r, g, b, sr, sg, sb, shiny);
+	r=0.906;g=0.369;b=0.31;
+	GetSpecular(r,g,b,shiny,&sr,&sg,&sb);
+	fprintf(ofp,"MATERIAL \"red\"  rgb %0.3f %0.3f %0.3f amb %0.3f %0.3f %0.3f  emis 0 0 0  spec %0.3f %0.3f %0.3f shi %d  trans 0\n", r, g, b, r, g, b, sr, sg, sb, shiny);
 	fprintf(ofp,"OBJECT world\nkids %d\n", kids);
 
-}
-
-
-int GetShine(double roughness)
-{
-/*
-Aerodynamically Smooth	0
-Polished Metal	2.00E-005
-Polished Wood	8.00E-005
-Natural Sheet Metal	1.60E-004
-Smooth Matte Paint	2.50E-004
-Standard Camo Paint	4.00E-004
-Cheap Camo Paint	1.20E-003
-Galvanized Metal	6.00E-003
-Cast Iron	1.00E-002
-*/
-/* 0 is dull, 128 is shiny */
-
-/* I take the 5th root of the rougness value and subtract that from 128. */
-	double t;
-	if(roughness < 0.) roughness = 0.00016;
-	if(roughness > 1.00e-2) roughness = 1.00e-2;
-	t = pow(roughness, 0.2);
-	t *= 300.; // 128/(Cast Iron)^0.2 
-	t = 128.-t;
-	return((int)t);
 }
 
 int WritePropellers(FILE *ofp, struct PROPWR *propwr)
