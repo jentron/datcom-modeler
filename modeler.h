@@ -26,8 +26,14 @@
 
 #ifndef MODELER_H
 /* Flight Conditions */
+
+/* Optional Inputs */
 struct OPTINS {
-  char pad[4];
+  double ROUGFC, /* Surface Roughness Factor */
+         SREF, /* Reference Area, value of theoretical wing */
+         CBARR, /* Longitudinal Reference Value.  MAC. */
+         BLREF; /* Lateral Reference Length.  Wing Span. */
+/*  char pad[4]; */
 } ;
 
 /* SYNTHS Reference Parameters*/

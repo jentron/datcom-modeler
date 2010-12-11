@@ -86,6 +86,7 @@
     static void ReadVariable(char* var);
     static void ReadNumber(char* str); /* Reads a double or an int */ 
 
+    static void OPTINSReadVariable(char* var);
     static void SYNTHSReadVariable(char* var);
     static void BODYReadVariable(char* var);
     static void PLNFReadVariable(char* var, struct WGPLNF* surface);
@@ -282,7 +283,7 @@ static void InitializeParser(AIRCRAFT* aircraft)
     num_doubles      = 0;
     next_int         = NULL;
 
-    bzero(current_aircraft, sizeof(AIRCRAFT));
+    memset(current_aircraft, 0, sizeof(AIRCRAFT));
 }
 
 static void Fail()
@@ -388,7 +389,7 @@ static void ReadVariable(char* var)
 // FIXME: Do Something!
         break;
     case NL_OPTINS:
-// FIXME: Do Something!
+        OPTINSReadVariable(var);
         break;
     default:
         break;
@@ -449,6 +450,25 @@ static void PROPWRReadVariable(char* var)
                 var, line_number);
     }
 }
+
+
+static void OPTINSReadVariable(char* var)
+{
+    num_doubles = 1;
+    if (strcmp(var, "ROUGFC") == 0) {
+        next_double = &current_aircraft->optins.ROUGFC;
+    } else if (strcmp(var, "SREF") == 0) {
+        next_double = &current_aircraft->optins.SREF;
+    } else if (strcmp(var, "CBARR") == 0) {
+        next_double = &current_aircraft->optins.CBARR;
+    } else if (strcmp(var, "BLREF") == 0) {
+        next_double = &current_aircraft->optins.BLREF;
+    } else {
+       if (verbose > 1) fprintf(stderr,
+                "datcom-parser: Unknown variable %s in OPTIN NAMELIST close to line %d\n",
+                var, line_number);
+    }
+} 
 
 static void SYNTHSReadVariable(char* var)
 {
