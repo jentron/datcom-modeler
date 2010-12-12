@@ -62,12 +62,19 @@ Cast Iron       1.00E-002
 */ 
 /* 0 is dull, 128 is shiny */
  
-/* I take the 5th root of the rougness value and subtract that from 128. */
+/* I take the nth root of the rougness value times a factor and subtract that from 128. */
+#define COLOR_ROOT          0.17    // Root and factor chosen to give 128 at 0 roughness
+#define COLOR_FACTOR      280.0     // 65 at default, and 0 at max roughness
+#define DEFAULT_ROUGHNESS   0.00016 //inches, from DATCOM manual
+
         double t;
-        if(roughness < 0.) roughness = 0.00016;
+        if(roughness < 0.) {
+		if (verbose > 1) fprintf(stderr,"color: Default Roughness\n");
+		roughness = DEFAULT_ROUGHNESS;
+	}
         if(roughness > 1.00e-2) roughness = 1.00e-2;
-        t = pow(roughness, 0.2);
-        t *= 300.; // 128/(Cast Iron)^0.2 
+        t = pow(roughness, COLOR_ROOT);
+        t *= COLOR_FACTOR; // 128/(Cast Iron)^0.2 
         t = 128.-t;
         return((int)t);
 }       
@@ -79,7 +86,7 @@ int GetSpecular(double ired, double igrn, double iblu, int shiny, double *ored, 
  
         if (shiny > 128) shiny = 128;
  
-        if (shiny <= HARD)
+/*        if (shiny <= HARD)
         {
                 factor=(double)shiny/HARD;
                 *ored = ired*factor;
@@ -91,5 +98,11 @@ int GetSpecular(double ired, double igrn, double iblu, int shiny, double *ored, 
                 *ogrn = igrn*factor - factor + 1;;
                 *oblu = iblu*factor - factor + 1;;
         }
+*/
+
+	factor = (double)shiny/128.;
+	*ored = factor;
+	*ogrn = factor;
+	*oblu = factor;
 }   
 
