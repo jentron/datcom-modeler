@@ -37,6 +37,11 @@ void matrix_add(Matrix4 *a, Matrix4 *b, Matrix4 *result);
 void vector3_subtract(Vector3 *A, Vector3 *B, Vector3 *result);
 void vector4_subtract(Vector4 *A, Vector4 *B, Vector4 *result);
 
+void vector3_cross(Vector3 *A, Vector3 *B, Vector3 *result);
+
+double vector3_magnitude(Vector3 *A);
+double vector4_magnitude(Vector4 *A);
+
 /* print */
 void matrix_print(Matrix4 *matrix);
 void matrix_fprint(FILE* fp, Matrix4 *matrix);
