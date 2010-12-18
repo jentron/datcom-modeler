@@ -1,22 +1,22 @@
 #include "matrix.h"
 
 
-void matrix_translate(Matrix4* matrix, double dx, double dy, double dz)
+void matrix4_translate(Matrix4* matrix, double dx, double dy, double dz)
 {
-	matrix_identity(matrix);
+	matrix4_identity(matrix);
 	matrix->element[0][3] = dx;
 	matrix->element[1][3] = dy;
 	matrix->element[2][3] = dz;
 }
 
-void matrix_rotateXYZ(Matrix4* matrix, double rx, double ry, double rz)
+void matrix4_rotateXYZ(Matrix4* matrix, double rx, double ry, double rz)
 {
 	Matrix4 mx, my, mz, ma;
 
-	matrix_identity(&ma);
-	matrix_identity(&mx);
-	matrix_identity(&my);
-	matrix_identity(&mz);
+	matrix4_identity(&ma);
+	matrix4_identity(&mx);
+	matrix4_identity(&my);
+	matrix4_identity(&mz);
 
 	mz.element[0][0] =  cos(rz);
 	mz.element[0][1] = -sin(rz);
@@ -33,14 +33,14 @@ void matrix_rotateXYZ(Matrix4* matrix, double rx, double ry, double rz)
 	my.element[2][0] =  sin(ry);
 	my.element[2][2] =  cos(ry);
 
-	matrix_multiply(&mx, &my, &ma);
-	matrix_multiply(&ma, &mz, matrix);
+	matrix4_multiply(&mx, &my, &ma);
+	matrix4_multiply(&ma, &mz, matrix);
 
 }
 
-void matrix_rotateZ(Matrix4* matrix, double rz)
+void matrix4_rotateZ(Matrix4* matrix, double rz)
 {
-	matrix_identity(matrix);
+	matrix4_identity(matrix);
 
 	matrix->element[0][0] =  cos(rz);
 	matrix->element[0][1] = -sin(rz);
@@ -49,9 +49,9 @@ void matrix_rotateZ(Matrix4* matrix, double rz)
 
 }
 
-void matrix_rotateX(Matrix4* matrix, double rx)
+void matrix4_rotateX(Matrix4* matrix, double rx)
 {
-	matrix_identity(matrix);
+	matrix4_identity(matrix);
 
 	matrix->element[1][1] =  cos(rx);
 	matrix->element[1][2] = -sin(rx);
@@ -60,9 +60,9 @@ void matrix_rotateX(Matrix4* matrix, double rx)
 
 }
 
-void matrix_rotateY(Matrix4* matrix, double ry)
+void matrix4_rotateY(Matrix4* matrix, double ry)
 {
-	matrix_identity(matrix);
+	matrix4_identity(matrix);
 
 	matrix->element[0][0] =  cos(ry);
 	matrix->element[0][2] = -sin(ry);
@@ -71,7 +71,7 @@ void matrix_rotateY(Matrix4* matrix, double ry)
 
 }
 
-void matrix_identity(Matrix4* matrix)
+void matrix4_identity(Matrix4* matrix)
 {
 	matrix->element[0][0] = 1;
 	matrix->element[0][1] = 0;
@@ -91,7 +91,7 @@ void matrix_identity(Matrix4* matrix)
 	matrix->element[3][3] = 1;
 }
 
-void matrix_multiply(Matrix4 *a, Matrix4 *b, Matrix4 *result)
+void matrix4_multiply(Matrix4 *a, Matrix4 *b, Matrix4 *result)
 {
 	int i,j,k;
 	for(i=0;i<4;i++)
@@ -121,7 +121,7 @@ void vector_multiply(Matrix4 *a, Vector4 *b, Vector4 *result)
 }
 
 
-void matrix_add(Matrix4 *a, Matrix4 *b, Matrix4 *result)
+void matrix4_add(Matrix4 *a, Matrix4 *b, Matrix4 *result)
 {
 	int i,j;
 	for(i=0;i<4;i++)
@@ -133,7 +133,27 @@ void matrix_add(Matrix4 *a, Matrix4 *b, Matrix4 *result)
 	}
 }
 
-void matrix_print(Matrix4 *matrix)
+void matrix3_print(Matrix3 *matrix)
+{
+	int i;
+	for(i=0;i<3;i++)
+	{
+		printf("% 0.4f, % 0.4f, % 0.4f\n", matrix->element[i][0], matrix->element[i][1], matrix->element[i][2]);
+	}
+
+}
+
+void matrix3_fprint(FILE *fp, Matrix3 *matrix)
+{
+        int i;
+        for(i=0;i<3;i++)
+        {
+                fprintf(fp, "% 0.4f, % 0.4f, % 0.4f\n", matrix->element[i][0], matrix->element[i][1], matrix->element[i][2]);
+        }
+
+}
+
+void matrix4_print(Matrix4 *matrix)
 {
 	int i;
 	for(i=0;i<4;i++)
@@ -143,7 +163,7 @@ void matrix_print(Matrix4 *matrix)
 
 }
 
-void matrix_fprint(FILE *fp, Matrix4 *matrix)
+void matrix4_fprint(FILE *fp, Matrix4 *matrix)
 {
         int i;
         for(i=0;i<4;i++)
