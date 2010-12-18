@@ -153,3 +153,75 @@ void matrix_fprint(FILE *fp, Matrix4 *matrix)
 
 }
 
+void vector3_print(Vector3 *vector)
+{
+	printf("(% 0.4f, % 0.4f, % 0.4f)\n", vector->element[0], vector->element[1], vector->element[2]);
+}
+
+void vector3_fprint(FILE *fp, Vector3 *vector)
+{
+	fprintf(fp, "(% 0.4f, % 0.4f, % 0.4f)\n", vector->element[0], vector->element[1], vector->element[2]);
+}
+
+
+void vector4_print(Vector4 *vector)
+{
+	printf("(% 0.4f, % 0.4f, % 0.4f, % 0.4f)\n", vector->element[0], vector->element[1], vector->element[2], vector->element[3]);
+}
+
+void vector4_fprint(FILE *fp, Vector4 *vector)
+{
+	fprintf(fp, "(% 0.4f, % 0.4f, % 0.4f, % 0.4f)\n", vector->element[0], vector->element[1], vector->element[2], vector->element[3]);
+}
+
+void vector3_subtract(Vector3 *A, Vector3 *B, Vector3 *result)
+{
+	int i;
+	for(i=0;i<3;i++)
+	{
+		result->element[i] = A->element[i]-B->element[i];
+	}
+}
+
+void vector4_subtract(Vector4 *A, Vector4 *B, Vector4 *result)
+{
+	int i;
+	for(i=0;i<4;i++)
+	{
+		result->element[i] = A->element[i]-B->element[i];
+	}
+}
+
+void vector3_cross(Vector3 *A, Vector3 *B, Vector3 *result)
+{
+	result->element[0]=0.;
+	result->element[1]=0.;
+	result->element[2]=0.;
+
+}
+
+double vector3_magnitude(Vector3 *A)
+{
+	double result;
+	result  = A->element[0]*A->element[0];
+	result += A->element[1]*A->element[1];
+	result += A->element[2]*A->element[2];
+	result = sqrt(result);
+printf("Result = %f\n", result);
+
+	return (result);
+}
+
+double vector4_magnitude(Vector4 *A)
+{
+	double result;
+	result  = A->element[0]*A->element[0];
+	result += A->element[1]*A->element[1];
+	result += A->element[2]*A->element[2];
+	result += A->element[3]*A->element[3];
+
+	result = sqrt(result);
+
+	return result;
+}
+

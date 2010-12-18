@@ -42,3 +42,6 @@ body: body.c
  
 matrixtest: matrix.o matrixtest.c
 	$(CC) $(CFLAGS) matrixtest.c matrix.o -DSTANDALONE -o $@ -lm
+
+triangle: matrix.o triangle.c
+	$(CC) $(CFLAGS) triangle.c matrix.o -DSTANDALONE -o $@ -lm
