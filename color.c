@@ -28,9 +28,11 @@
 #include "modeler.h"
 #include "modeler_proto.h"
 
-extern int verbose;
-
 #ifdef STANDALONE
+#include <stdlib.h>
+
+int verbose = 3;
+
 int main(int argc, char *argv[])
 {
 	int i;
@@ -41,9 +43,11 @@ int main(int argc, char *argv[])
 		GetSpecular(r,g,b,i,&sr,&sg,&sb);
 	        fprintf(stdout,"rgb %0.3f %0.3f %0.3f spec %0.3f %0.3f %0.3f shi %d\n", r, g, b, sr, sg, sb, i);
 	}
+	return(EXIT_SUCCESS);
 }
 
-
+#else
+extern int verbose;
 #endif /* STANDALONE */
 
 
@@ -104,5 +108,6 @@ int GetSpecular(double ired, double igrn, double iblu, int shiny, double *ored, 
 	*ored = factor;
 	*ogrn = factor;
 	*oblu = factor;
+	return(1);
 }   
 

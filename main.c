@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "datcom-parser.h"
+#include "modeler_proto.h"
 
 int verbose=1; /* External to all other modules */
 /* Verbose Levels:

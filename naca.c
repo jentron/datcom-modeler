@@ -132,6 +132,7 @@ if(output_type==OUT_AC3D)
 			fprintf(ofp, "%0.8f %0.8f\n", airfoil.DATAX[i], airfoil.DATAY[i]);
 		}
 	}
+	exit(EXIT_SUCCESS);
 }
 #else
 extern int verbose;
@@ -141,7 +142,6 @@ int NacaFoil(char *name, struct AIRFOIL *foil, int stations)
 {
 	double m, p, t, K1;
 	int i=16, q;
-	char *foo;
 	char bar[3];
 	if(strncmp("NACA", name, 4) )
 	{
@@ -276,7 +276,7 @@ if(verbose > 1 )fprintf(stderr,"naca: m = %0.2f, p = %0.2f, t = %0.2f\n", m, p, 
 	naca4digit(m, p, t, foil, stations);
 	}
 
-
+	return(1);
 }
 
 void naca4digit(double m, double p, double t, struct AIRFOIL *airfoil, int stations )

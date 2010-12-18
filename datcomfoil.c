@@ -40,6 +40,7 @@ int DatcomFoil(DATCOM_AIRFOIL *dfoil, struct AIRFOIL *foil)
                 foil->DATAX[j] = dfoil->XCORD[i];
                 foil->DATAY[j] = dfoil->YLOWER[i];
         }
+	return(1);
 }
 
 

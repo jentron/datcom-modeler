@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
 	area = TriangleArea(&P, &Q, &R);
 
 	fprintf(stdout,"Area = %f\n", area);
-
+	return (area);
 }
 
 double TriangleArea(Vector3 *P, Vector3 *Q, Vector3 *R)

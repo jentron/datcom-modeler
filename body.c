@@ -40,6 +40,7 @@ header(points, stdout);
 //	if(S < pi) return 1;
 	GetRib(S, 0., 1., 1., 0, 0, 0, points, stdout);
 footer(points, stdout);
+	exit(EXIT_SUCCESS);
 }
 #else
 extern int verbose;

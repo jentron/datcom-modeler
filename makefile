@@ -1,4 +1,4 @@
-CFLAGS = -g
+CFLAGS = -g -Wall
 OBJECTS = color.o modeler.o datcom-parser.o datcomfoil.o naca.o body.o
 
 datcom-modeler: main.c $(OBJECTS) datcom-parser.h  matrix.h  modeler.h  modeler_proto.h

@@ -26,6 +26,7 @@
 #include <math.h>
 
 #include "modeler.h"
+#include "modeler_proto.h"
 extern int verbose;
 
 /* Tube surface joins two sets of points, starting with offset a and b with surfaces */
@@ -52,6 +53,7 @@ int InitAC(FILE *ofp, int kids, int shiny)
 	fprintf(ofp,"MATERIAL \"red\"  rgb %0.3f %0.3f %0.3f amb %0.3f %0.3f %0.3f  emis 0 0 0  spec %0.3f %0.3f %0.3f shi %d  trans 0\n", r, g, b, r, g, b, sr, sg, sb, shiny);
 	fprintf(ofp,"OBJECT world\nkids %d\n", kids);
 
+	return(1);
 }
 
 int WritePropellers(FILE *ofp, struct PROPWR *propwr)
@@ -70,6 +72,7 @@ int WritePropellers(FILE *ofp, struct PROPWR *propwr)
 		 fprintf(ofp,"kids 0\n");
 		 Y *= -1;
 	 }
+	return(1);
 }
 
 
@@ -77,7 +80,7 @@ int WriteBody(FILE *ofp, struct BODY *body, struct SYNTHS *synths)
 {
 	int i, j, points=32;
 	double XR, ZR, ZC;
-	double p=0,r=0,s=0,z=0;
+	double p=0.,r=0.,s=0.,z=0.;
 	int good=0;
 /* first we look at the data structure too see what information we've been provided */
 	for(i=0; i < body->NX; i++)
@@ -103,7 +106,7 @@ int WriteBody(FILE *ofp, struct BODY *body, struct SYNTHS *synths)
 	}
 	good=1;
   } else {
-	if (verbose > 0) fprintf(stderr,"Not enough data found to draw a body, sorry. P=%d, R=%d, S=%d, Z=%d\n", p, r, s, z);
+	if (verbose > 0) fprintf(stderr,"Not enough data found to draw a body, sorry. P=%f, R=%f, S=%f, Z=%f\n", p, r, s, z);
 	return 0; //not enough data to proceed
   }
 
@@ -356,6 +359,7 @@ int tubesurface(FILE *ofp, int a, int b, int count, int type, int color)
 		fprintf(ofp, "SURF 0x%02x\nmat %d\nrefs 3\n%d 0 0\n%d 0 0\n%d 0 0\n", type, color, a+i, b+i, a+(i+1)%count);
 		fprintf(ofp, "SURF 0x%02x\nmat %d\nrefs 3\n%d 0 0\n%d 0 0\n%d 0 0\n", type, color, b+i, b+(i+1)%count, a+(i+1)%count);
 	}
+	return(1);
 }
 
 int skinsurface(FILE *ofp, int a, int count, int type, int color, int reverse)
@@ -383,6 +387,7 @@ int skinsurface(FILE *ofp, int a, int count, int type, int color, int reverse)
 		}
 	}
 
+	return(1);
 }
 
 int skinsurface2(FILE *ofp, int a, int count, int type, int color, int reverse)
@@ -400,4 +405,5 @@ int skinsurface2(FILE *ofp, int a, int count, int type, int color, int reverse)
 		}
 	}
 
+	return(1);
 }
