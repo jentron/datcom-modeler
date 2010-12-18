@@ -2,6 +2,9 @@
 
 double TriangleArea(Vector3 *P, Vector3 *Q, Vector3 *R);
 
+#ifdef STANDALONE
+#include <stdlib.h>
+
 int main(int argc, char *argv[])
 {
 	double area;
@@ -20,11 +23,28 @@ int main(int argc, char *argv[])
 	R.element[2]=0.;
 
 	area = TriangleArea(&P, &Q, &R);
+	fprintf(stdout,"Area 0.5 = %f : Error = %f\n", area, area-0.5);
 
-	fprintf(stdout,"Area = %f\n", area);
-	return (area);
+	P.element[0]= 0.;
+	P.element[1]= 4.;
+	P.element[2]= 4.;
+
+	Q.element[0]= 2.;
+	Q.element[1]=-6.;
+	Q.element[2]=-5.;
+
+	R.element[0]=-3.;
+	R.element[1]=-5.;
+	R.element[2]= 6.;
+
+	area = TriangleArea(&P, &Q, &R);
+	fprintf(stdout,"Area 57.0832725061 = %f : Error = %f\n", area, area-57.0832725061);
+
+
+
+	exit(EXIT_SUCCESS);
 }
-
+#endif //def STANDALONE
 double TriangleArea(Vector3 *P, Vector3 *Q, Vector3 *R)
 {
 	Vector3 PQ, PR, Cross;
@@ -32,15 +52,13 @@ double TriangleArea(Vector3 *P, Vector3 *Q, Vector3 *R)
 
 	vector3_subtract(P, Q, &PQ);
 	vector3_subtract(P, R, &PR);
-vector3_print(&PQ);
-vector3_print(&PR);
+//vector3_print(&PQ);
+//vector3_print(&PR);
 	vector3_cross(&PQ, &PR, &Cross);
-vector3_print(&Cross);
+//vector3_print(&Cross);
 	area=vector3_magnitude(&Cross);
-printf("Step 1 = %f\n", area);
 
 	area /= 2;
-printf("Step 2 = %f\n", area);
 	return(area);
 
 }

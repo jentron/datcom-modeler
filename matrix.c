@@ -192,11 +192,15 @@ void vector4_subtract(Vector4 *A, Vector4 *B, Vector4 *result)
 	}
 }
 
-void vector3_cross(Vector3 *A, Vector3 *B, Vector3 *result)
+void vector3_cross(Vector3 *B, Vector3 *C, Vector3 *result)
 {
-	result->element[0]=0.;
-	result->element[1]=0.;
-	result->element[2]=0.;
+/*  a_x = b_y c_z - b_z c_y  
+    a_y = b_z c_x - b_x c_z  
+    a_z = b_x c_y - b_y c_x */ 
+
+	result->element[0]=B->element[1]*C->element[2] - B->element[2]*C->element[1];
+	result->element[1]=B->element[2]*C->element[0] - B->element[0]*C->element[2];
+	result->element[2]=B->element[0]*C->element[1] - B->element[1]*C->element[0];
 
 }
 
@@ -207,7 +211,6 @@ double vector3_magnitude(Vector3 *A)
 	result += A->element[1]*A->element[1];
 	result += A->element[2]*A->element[2];
 	result = sqrt(result);
-printf("Result = %f\n", result);
 
 	return (result);
 }
