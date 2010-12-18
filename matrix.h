@@ -26,9 +26,9 @@ void matrix4_translate(Matrix4* matrix, double dx, double dy, double dz);
 
 /* initialize a rotation matrix */
 void matrix4_rotateXYZ(Matrix4* matrix, double rx, double ry, double rz);
-void matrix4_rotateX(Matrix4* matrix, double ry)
-void matrix4_rotateY(Matrix4* matrix, double rx)
-void matrix4_rotateZ(Matrix4* matrix, double rz)
+void matrix4_rotateX(Matrix4* matrix, double ry);
+void matrix4_rotateY(Matrix4* matrix, double rx);
+void matrix4_rotateZ(Matrix4* matrix, double rz);
 
 /* initialize an identity matrix */
 void matrix4_identity(Matrix4* matrix);
