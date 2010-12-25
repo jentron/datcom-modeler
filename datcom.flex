@@ -134,7 +134,8 @@ DOUBLE          "-"?{DIGIT}*"."{DIGIT}*("E""-"?{DIGIT}+)?   */
 DOUBLE          ("-"?{DIGIT}+"."{DIGIT}+("E""-"?{DIGIT}+)?|"-"?{DIGIT}+"."("E""-"?{DIGIT}+)?|"-"?"."{DIGIT}+("E""-"?{DIGIT}+)?)
 
 BOOL            \.TRUE\.|\.FALSE\.
-COMMAND         ^(DIM|PART|DERIV|DUMP|DAMP|SAVE|NEXT|CASEID|BUILD|PLOT|TRIM)
+COMMAND         ^(PART|DERIV|DUMP|DAMP|SAVE|NEXT|CASEID|BUILD|PLOT|TRIM)
+DIMENSION       ^(DIM)
 NAMELIST        "$"{ID}
 VAR             {ID}({WS}*"=")
 ARRVAR          {ID}"(1)"{WS}*"="
@@ -216,6 +217,13 @@ LENDCOMMENT     "!"{NEOL}*
 
 {COMMAND}{NEOL}* {
 	if (verbose > 2) fprintf(stderr,"datcom-parser:Command: %s\n", yytext);
+
+    /* Drop uninteresting commands */
+    ClearLineRead();
+}
+
+{DIMENSION}{NEOL}* {
+	if (verbose) fprintf(stderr,"datcom-parser:Dimension: %s\n", yytext);
 
     /* Drop uninteresting commands */
     ClearLineRead();
