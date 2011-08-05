@@ -27,9 +27,9 @@
 
 /* Funtions in modeler.c */
 int InitAC(FILE *ofp, int kids, int shiny);
-int WriteBody(FILE *ofp, struct BODY *body, struct SYNTHS *synths);
-int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *name, double X, double Z);
-int WriteFin(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *name, double X, double Z, int vertup);
+int WriteBody(FILE *ofp, struct BODY *body, struct SYNTHS *synths, int Quads);
+int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *name, double X, double Z, int Quads);
+int WriteFin(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *name, double X, double Z, int vertup, int Quads);
 int WritePropellers(FILE *ofp, struct PROPWR *propwr);
 
 /* Functions in color.c */

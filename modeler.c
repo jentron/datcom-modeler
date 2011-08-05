@@ -78,9 +78,9 @@ int WritePropellers(FILE *ofp, struct PROPWR *propwr)
 }
 
 
-int WriteBody(FILE *ofp, struct BODY *body, struct SYNTHS *synths)
+int WriteBody(FILE *ofp, struct BODY *body, struct SYNTHS *synths, int Quads)
 {
-    int i, j, points=32;
+    int i, j, points=32, surface_count;
     double XR, ZR, ZC;
     double p=0.,r=0.,s=0.,z=0.;
     int good=0;
@@ -169,19 +169,22 @@ int WriteBody(FILE *ofp, struct BODY *body, struct SYNTHS *synths)
 
   }
 
+  surface_count = points * ( body->NX -1 );
+  if( !Quads ) surface_count *= 2;
+  fprintf(ofp,"numsurf %d\n",  surface_count );
 
-        fprintf(ofp,"numsurf %d\n", points * 2 * ( body->NX -1 ));
-        for(i=0;i<body->NX - 1;i++)
-        {
-                tubesurface(ofp, (i+1) * points, (i) * points , points, 0x30, 0);
-        }
-    fprintf(ofp,"kids 0\n");
-    return(1);
+  for(i=0;i<body->NX - 1;i++)
+  {
+     if(!Quads) tubesurface(ofp, (i+1) * points, (i) * points , points, 0x30, 0);
+     else  tubesurfaceQuads(ofp, (i+1) * points, (i) * points , points, 0x30, 0);
+  }
+  fprintf(ofp,"kids 0\n");
+  return(1);
 }
 
-int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *name, double X, double Z)
+int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *name, double X, double Z, int Quads)
 {
-    int i, ribs, sections, current_rib, current_section;
+    int i, ribs, sections, current_rib, current_section, surface_count;
     double chord[4],span[4], offset_x[4], offset_z[4];
 
     if(wing->SSPNOP > 0.0)
@@ -235,10 +238,15 @@ int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *nam
         }
     }
 
-    fprintf(ofp,"numsurf %d\n", airfoil->COUNT * sections + airfoil->COUNT - 2);
+    surface_count = airfoil->COUNT * sections;
+    if( !Quads ) surface_count *= 2;
+    surface_count += airfoil->COUNT - 2;
+    fprintf(ofp,"numsurf %d\n",  surface_count );
+
     for(current_section=0;current_section<sections;current_section++)
     {
-        tubesurfaceQuads(ofp, current_section * airfoil->COUNT, (current_section + 1) * airfoil->COUNT , airfoil->COUNT, 0x30, current_section);
+        if(!Quads) tubesurface(ofp, current_section * airfoil->COUNT, (current_section + 1) * airfoil->COUNT , airfoil->COUNT, 0x30, current_section);
+        else  tubesurfaceQuads(ofp, current_section * airfoil->COUNT, (current_section + 1) * airfoil->COUNT , airfoil->COUNT, 0x30, current_section);
     }
     skinsurface(ofp, (sections)*airfoil->COUNT, airfoil->COUNT, 0x30, sections-1, 0);
 
@@ -257,10 +265,11 @@ int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *nam
     }
 
 
-    fprintf(ofp,"numsurf %d\n", airfoil->COUNT * 2 * sections + airfoil->COUNT - 2);
+    fprintf(ofp,"numsurf %d\n", surface_count);
     for(current_section=0;current_section<sections;current_section++)
     {
-        tubesurface(ofp, (current_section + 1) * airfoil->COUNT, (current_section ) * airfoil->COUNT , airfoil->COUNT, 0x30, current_section);
+        if(!Quads) tubesurface(ofp, (current_section + 1) * airfoil->COUNT, (current_section ) * airfoil->COUNT , airfoil->COUNT, 0x30, current_section);
+        else  tubesurfaceQuads(ofp, (current_section + 1) * airfoil->COUNT, (current_section ) * airfoil->COUNT , airfoil->COUNT, 0x30, current_section);
     }
     skinsurface(ofp, (sections)*airfoil->COUNT, airfoil->COUNT, 0x30, sections-1, 1);
     fprintf(ofp,"kids 0\n");
@@ -268,9 +277,9 @@ int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *nam
     return(1);
 }
 
-int WriteFin(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *name, double X, double Z, int vertup)
+int WriteFin(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *name, double X, double Z, int vertup, int Quads)
 {
-    int i, ribs, sections, current_rib, current_section, count;
+    int i, ribs, sections, current_rib, current_section, count, surface_count;
     double chord[4],span[4], offset_x[4], offset_z[4],sign=1.0;
 
     if(!vertup) sign= -1.0;
@@ -339,10 +348,14 @@ int WriteFin(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *name
         }
     }
 
-    fprintf(ofp,"numsurf %d\n", airfoil->COUNT * sections + airfoil->COUNT - 2);
+    surface_count = airfoil->COUNT * sections;
+    if( !Quads ) surface_count *= 2;
+    surface_count += airfoil->COUNT - 2;
+    fprintf(ofp,"numsurf %d\n",  surface_count );
     for(current_section=0;current_section<sections;current_section++)
     {
-        tubesurfaceQuads(ofp, (current_section + 1) * airfoil->COUNT, (current_section) * airfoil->COUNT , airfoil->COUNT, 0x30, current_section);
+        if(!Quads) tubesurface(ofp, (current_section + 1) * airfoil->COUNT, (current_section) * airfoil->COUNT , airfoil->COUNT, 0x30, current_section);
+        else  tubesurfaceQuads(ofp, (current_section + 1) * airfoil->COUNT, (current_section) * airfoil->COUNT , airfoil->COUNT, 0x30, current_section);
     }
     skinsurface(ofp, (sections)*airfoil->COUNT, airfoil->COUNT, 0x30, sections-1, vertup );
 
