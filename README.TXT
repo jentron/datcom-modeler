@@ -4,7 +4,7 @@
 
 Usage: ./datcom-modeler myairplane.dcm >myairplane.ac
 
-Usage: datcom-modeler [-n b|e|f|h|v|w] [-v] [-q] [-o ac-file] datcom-file
+Usage: datcom-modeler [-n b|e|f|h|v|w] [-v] [-q] [-Q] [-o ac-file] datcom-file
 
 The fuselage body is colored green.  The un-exposed spans of the wings and fins are also green.  The outboard panels (if present) are red.
 

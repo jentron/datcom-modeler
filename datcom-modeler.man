@@ -4,7 +4,7 @@
 datcom-modeler - generate 3d model based on datcom-input
 
 .SH SYNOPSIS
-datcom-modeler [-n b|e|f|h|v|w] [-v] [-q] [-o ac-file] datcom-file
+datcom-modeler [-n b|e|f|h|v|w] [-v] [-q] [-Q] [-o ac-file] datcom-file
 
 .SH DESCRIPTION
 Read a DATCOM or DATCOM+ input file and generate an ac3d format 3d
@@ -16,6 +16,8 @@ model based on input characteristics.
    -nh     do not generate horizontal tail
    -nv     do not generate vertical tail
    -nw     do not generate wings
+
+   -Q      Use quads instead of triangles for most surfaces.   
 
    -q      quiet, don't produce any output on stderr.
    -v      verbose, produce more output on stderr.
