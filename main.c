@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
     struct AIRFOIL vtailfoil;
     struct AIRFOIL vfinfoil;
 
-    while ((opt = getopt(argc, argv, "n:o:qv:Q")) != -1)
+    while ((opt = getopt(argc, argv, "n:o:qvQ")) != -1)
     {
         switch (opt)
         {
