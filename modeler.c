@@ -202,7 +202,7 @@ int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *nam
         offset_x[0]=X+wing->CHSTAT*wing->CHRDR;
         offset_x[1]=offset_x[0]+tan(wing->SAVSI * 0.017453293)*span[1];
         offset_x[2]=offset_x[0]+tan(wing->SAVSI * 0.017453293)*span[2];
-        offset_x[3]=offset_x[0]+tan(wing->SAVSI * 0.017453293)*span[2] + sin(wing->SAVSO * 0.017453293)*wing->SSPNOP;
+        offset_x[3]=offset_x[0]+tan(wing->SAVSI * 0.017453293)*span[2] + tan(wing->SAVSO * 0.017453293)*wing->SSPNOP;
 // SSPNDD  * cos (dihedral) = SSPNOP ??
         offset_z[0]=Z;
         offset_z[1]=Z + sin(wing->DHDADI * 0.017453293) * (wing->SSPN - wing->SSPNE);
