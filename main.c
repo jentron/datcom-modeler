@@ -22,8 +22,8 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *=============================================================================
  */
-
-#include <unistd.h>
+#include "getopt.h"
+/*#include <unistd.h>*/
 #include <stdio.h>
 #include <stdlib.h>
 #include "datcom-parser.h"
@@ -181,8 +181,8 @@ int main(int argc, char *argv[])
       else shiny = GetShine(ac.optins.ROUGFC);
 
       InitAC(ofp, objects, shiny);
-      if (wing) WriteWing(ofp, &ac.wing, &wingfoil, "Wing", ac.synths.XW, ac.synths.ZW, quads);
-      if (htail) WriteWing(ofp, &ac.htail, &htailfoil, "H-Tail", ac.synths.XH, ac.synths.ZH, quads);
+      if (wing) WriteWing(ofp, &ac.wing, &wingfoil, "Wing", ac.synths.ALIW, ac.synths.XW, ac.synths.ZW, quads);
+      if (htail) WriteWing(ofp, &ac.htail, &htailfoil, "H-Tail", ac.synths.ALIH, ac.synths.XH, ac.synths.ZH, quads);
       if (vtail) WriteFin(ofp, &ac.vtail, &vtailfoil, "V-Tail", ac.synths.XV, ac.synths.ZV, 1, quads);
       if (vfin) WriteFin(ofp, &ac.vfin, &vfinfoil, "V-Fin", ac.synths.XVF, ac.synths.ZVF, ac.synths.VERTUP, quads);
       if (body) WriteBody(ofp, &ac.body, &ac.synths, quads);

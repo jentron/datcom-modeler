@@ -182,10 +182,10 @@ int WriteBody(FILE *ofp, struct BODY *body, struct SYNTHS *synths, int Quads)
   return(1);
 }
 
-int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *name, double X, double Z, int Quads)
+int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *name, double ALI, double X, double Z, int Quads)
 {
     int i, ribs, sections, current_rib, current_section, surface_count;
-    double chord[4],span[4], offset_x[4], offset_z[4];
+    double chord[4],span[4], offset_x[4], offset_z[4], twist[4];
 
     if(wing->SSPNOP > 0.0)
     {
@@ -203,6 +203,10 @@ int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *nam
         offset_x[1]=offset_x[0]+tan(wing->SAVSI * 0.017453293)*span[1];
         offset_x[2]=offset_x[0]+tan(wing->SAVSI * 0.017453293)*span[2];
         offset_x[3]=offset_x[0]+tan(wing->SAVSI * 0.017453293)*span[2] + sin(wing->SAVSO * 0.017453293)*wing->SSPNOP;
+        twist[0] = 0.0;
+        twist[1] = 0.0;
+        twist[2] = wing->TWISTA * ((wing->SSPNE - wing->SSPNOP) / (wing->SSPN - wing->SSPNOP));
+        twist[3] = wing->TWISTA;
 // SSPNDD  * cos (dihedral) = SSPNOP ??
         offset_z[0]=Z;
         offset_z[1]=Z + sin(wing->DHDADI * 0.017453293) * (wing->SSPN - wing->SSPNE);
@@ -224,16 +228,25 @@ int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *nam
         offset_z[0]=Z;
         offset_z[1]=Z + sin(wing->DHDADI * 0.017453293) * (wing->SSPN - wing->SSPNE);
         offset_z[2]=Z + sin(wing->DHDADI * 0.017453293) * (wing->SSPN);
+        twist[0] = 0.0;
+        twist[1] = 0.0;
+        twist[2] = wing->TWISTA;
     }
 
     fprintf(ofp,"OBJECT poly\nname \"Left %s\"\ncrease 45.0\nnumvert %d\n", name, airfoil->COUNT * ribs); // three or four based on type
+    printf("ALI %f    ", ALI);
+    printf("TWISTA %f   ", wing->TWISTA);
     for(current_rib=0;current_rib<ribs;current_rib++)
     {
+        printf("twist %f  \n", twist[current_rib]);
         for (i=0;i<airfoil->COUNT;i++)
         {
+            double Dx = airfoil->DATAX[i];
+            double ANG = ALI + twist[current_rib];
+            double Dy = airfoil->DATAY[i] - airfoil->DATAX[i] * sin(ANG/ 57.3);
             fprintf(ofp,"%f %f %f\n",
-                offset_x[current_rib] + ((airfoil->DATAX[i] - wing->CHSTAT) * chord[current_rib]),
-                offset_z[current_rib] + (airfoil->DATAY[i] * chord[current_rib]),
+                offset_x[current_rib] + ((Dx - wing->CHSTAT) * chord[current_rib]),
+                offset_z[current_rib] + (Dy * chord[current_rib]),
                 span[current_rib]);
         }
     }
@@ -253,13 +266,17 @@ int WriteWing(FILE *ofp, struct WGPLNF *wing, struct AIRFOIL *airfoil, char *nam
     fprintf(ofp,"kids 0\n");
 
     fprintf(ofp,"OBJECT poly\nname \"Right %s\"\ncrease 45.0\nnumvert %d\n", name, airfoil->COUNT * ribs); // three or four based on type
-    for(current_rib=0;current_rib<ribs;current_rib++)
+    for (current_rib = 0; current_rib < ribs; current_rib++)
     {
+        printf("twist %f  \n", twist[current_rib]);
         for (i=0;i<airfoil->COUNT;i++)
         {
+            double Dx = airfoil->DATAX[i];
+            double ANG = ALI + twist[current_rib];
+            double Dy = airfoil->DATAY[i] - airfoil->DATAX[i] * sin(ANG / 57.3);
             fprintf(ofp,"%f %f %f\n",
-                offset_x[current_rib] + ((airfoil->DATAX[i] - wing->CHSTAT) * chord[current_rib]),
-                offset_z[current_rib] + (airfoil->DATAY[i] * chord[current_rib]),
+                offset_x[current_rib] + ((Dx - wing->CHSTAT) * chord[current_rib]),
+                offset_z[current_rib] + (Dy * chord[current_rib]),
                 -span[current_rib]);
         }
     }
