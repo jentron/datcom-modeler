@@ -22,8 +22,8 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *=============================================================================
  */
-#include "getopt.h"
-/*#include <unistd.h>*/
+#include "getopt.h"     //  Windows
+/*#include <unistd.h>*/ //  Unix
 #include <stdio.h>
 #include <stdlib.h>
 #include "datcom-parser.h"
